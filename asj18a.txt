@@ -1,0 +1,9 @@
+STRENGTHS:
+1. Code
+2. Creativity
+3. Documentation
+
+CONTRIBUTIONS:
+I will write readable, robust, and efficient code.
+I will write tests to ensure that my code is working as intended.
+I will write documentation to help others understand my code.
