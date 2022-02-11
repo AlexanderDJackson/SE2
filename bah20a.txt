@@ -1,0 +1,9 @@
+STRENGTHS:
+1. Stats
+2. Databases
+3. Documentation
+
+CONTRIBUTIONS:
+I will be able to write queries that deliver important information.
+I will document my code clearly to show others what my code means.
+I will write code that delivers stats of the application to help users and contributors.
