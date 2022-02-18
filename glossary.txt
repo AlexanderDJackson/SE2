@@ -1,0 +1,12 @@
+Peer Evaluation
+
+Person: to handle this the program will have to store data about a person which is a class that keeps information of their performance
+
+Evaluator: evaluator is a subclass of person that will handle putting in data of reflecting their peers performance
+
+Team: team is a class that can measure the overall succes of a collective team performance and happiness of team members
+
+Indiviudal: individual looks at the evaluation of a specific individual in regards to their team
+
+Evaluation: to handle evaluation the evalutor will be sent a prompt where they will be given a prompt to give ratings of each of their team members that is then stored
+after this data is stored there will be overall stats in each category of performance
