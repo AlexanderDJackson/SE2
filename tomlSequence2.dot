@@ -1,0 +1,13 @@
+@startuml
+participant Toml    as Foo
+entity       File   as Foo1
+entity       Map    as Foo2
+entity    HashMap   as Foo3
+Foo <-x Foo1 : To Toml 
+Foo -> Foo2 : To Map 
+rnote over Foo2
+Manipulate Map
+endrnote
+Foo <-x Foo2
+Foo -> Foo3 : To HashMap
+@enduml
