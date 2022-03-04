@@ -1,0 +1,7 @@
+@startuml
+participant Toml    as Foo
+entity       Map    as Foo1
+entity    HashMap   as Foo2
+Foo -> Foo1 : To Map 
+Foo -> Foo2 : To HashMap
+@enduml

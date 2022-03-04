@@ -1,0 +1,10 @@
+@startuml
+class Toml {
+    Map tomls
+    Map toMap(String toml)
+}
+class Map
+
+Toml -- Map : composed of or can be expressed as >
+
+@enduml
