@@ -1,0 +1,8 @@
+@startuml
+participant Toml     as Foo
+entity       File    as Foo1
+entity       HashMap as Foo2
+Foo -> Foo1 : Request File
+return  
+Foo -> Foo2 : To Map 
+@enduml
