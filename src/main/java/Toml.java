@@ -1,7 +1,10 @@
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Stream;
 
 import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +31,63 @@ public class Toml
 	 * @param toml The TOML string to parse
 	 */
 	public Toml(String toml) { }
-	
+
+	public static String[] parseLine(String line) {
+		int i = 0;
+		String[] result;
+
+		if(line == null) {
+			return null;
+		}
+
+		while(line.charAt(i) == ' ' || line.charAt(i) == '\t') {
+			i++;
+		}
+
+		if(line.charAt(i) == '\n') {
+			return null;
+		}
+
+		if(line.charAt(i) == '#') {
+			return null;
+		} else if(line.charAt(i) == '[') {
+			result = new String[1];
+			result[0] = "";
+
+			while(line.charAt(i) != ']') {
+				result[0] += line.charAt(i++);
+			}
+
+			return result;
+		} else {
+			result = new String[2];
+			result[0] = "";
+			result[1] = "";
+
+			while(line.charAt(i) != '=' && line.charAt(i) != ' ') {
+				result[0] += line.charAt(i++);
+			}
+
+			while(line.charAt(i) == '=' || line.charAt(i) == ' ') {
+				i++;
+			}
+
+			if(line.charAt(i) == '"') {
+				i++;
+				while(line.charAt(i) != '"') {
+					result[1] += line.charAt(i++);
+				}
+			} else {
+				while(line.charAt(i) != '\n' && line.charAt(i) != '#') {
+					result[1] += line.charAt(i++);
+				}
+			}
+			
+			return result;
+		}
+
+	}
+
 	/**
 	 * Parse the TOML string into a HashMap
 	 *
@@ -37,34 +96,24 @@ public class Toml
 	public static HashMap<String, Object> parseToml(String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
-		for(int i = 0; i < tomlString.length(); i ++) {
-			char c = tomlString.charAt(i);
+		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 
-			try {
-				switch(c) {
-					case '#':
-						while(tomlString.charAt(i) != '\n') { i++; }
-					case '\n':
-						if(tomlString.charAt(i + 1) != '#') {
-							String key = "", value = "";
-
-							while(tomlString.charAt(i) != ' ' || tomlString.charAt(i) == '=') {
-								key += tomlString.charAt(i++);
-							}
-							
-							while(tomlString.charAt(i) != '\n') {
-								 value += tomlString.charAt(i++);
-							}
-							
-							table.put(key, value);
-						}
-					default:
-						break;
+		String line;
+		try {
+			while((line = reader.readLine()) != null) {
+				String[] result = parseLine(line + '\n');
+				if(result != null) {
+					if(result.length == 1) {
+						table.put(result[0], new HashMap<String, Object>());
+					} else {
+						table.put(result[0], result[1]);
+					}
 				}
-			} catch(IndexOutOfBoundsException e) {
-				break;
 			}
+		} catch(IOException e) {
+			e.printStackTrace();
 		}
+	
 		return table;
 	}
 
@@ -77,7 +126,7 @@ public class Toml
 			e.printStackTrace();
 		}
 
-		System.out.println(parseToml(content).toString());
+		System.out.println("\n\n" + parseToml(content).toString());
 
 	}
 }
