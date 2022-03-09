@@ -1,6 +1,10 @@
 import java.util.HashMap;
-import java.nio.File;
-import java.nio.charset.Charset;
+import java.util.stream.Stream;
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -15,7 +19,8 @@ import java.nio.charset.Charset;
  */
 public class Toml
 {
-	HashMap<String, HashMap<String, Object>> toml;
+	HashMap<String, Object> table;
+	String name;
 
 	/**
 	 * Toml constructor
@@ -29,25 +34,50 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
-	public Toml parseToml(String tomlString) {
-		this.toml = new HashMap<String, HashMap<String, Object>>();
+	public static HashMap<String, Object> parseToml(String tomlString) {
+		HashMap<String, Object> table = new HashMap<String, Object>();
+
 		for(int i = 0; i < tomlString.length(); i ++) {
 			char c = tomlString.charAt(i);
 
-			switch(c) {
-				case '#':
-					System.out.print("#");
-					while(tomlString.charAt(i) != '\n') {
-						System.out.print(tomlString.charAt(i));
-						i++;
-					}
-					System.out.print("\n");
+			try {
+				switch(c) {
+					case '#':
+						while(tomlString.charAt(i) != '\n') { i++; }
+					case '\n':
+						if(tomlString.charAt(i + 1) != '#') {
+							String key = "", value = "";
+
+							while(tomlString.charAt(i) != ' ' || tomlString.charAt(i) == '=') {
+								key += tomlString.charAt(i++);
+							}
+							
+							while(tomlString.charAt(i) != '\n') {
+								 value += tomlString.charAt(i++);
+							}
+							
+							table.put(key, value);
+						}
+					default:
+						break;
+				}
+			} catch(IndexOutOfBoundsException e) {
+				break;
 			}
 		}
+		return table;
 	}
 
-	public void main(String[] args) {
-		String content = Files.readString("example.toml", Charset.defaultCharset());
-		parseToml(content);
+	public static void main(String[] args) {
+		String content = "";
+
+		try {
+			content = new String(Files.readAllBytes(Paths.get("src/main/resources/example.toml")));
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println(parseToml(content).toString());
+
 	}
 }
