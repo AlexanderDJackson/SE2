@@ -1,12 +1,11 @@
-Peer Evaluation
+TOML File Library
 
-Person: to handle this the program will have to store data about a person which is a class that keeps information of their performance
+TOML File: TOML is a file format for coniguration files
 
-Evaluator: evaluator is a subclass of person that will handle putting in data of reflecting their peers performance
+Hash Map: Hash Maps store items with identifiers and is used in this library to store key value pairs in their corresponding tables
 
-Team: team is a class that can measure the overall succes of a collective team performance and happiness of team members
+Parse Toml: Parse Toml takes the TOML string into a Hash Map
 
-Indiviudal: individual looks at the evaluation of a specific individual in regards to their team
+TOML Supported Data Types: TOML File Library is made to support String, Integer, Float, Boolean, Datetime, Array, and Table(hash table/dictionary)
 
-Evaluation: to handle evaluation the evalutor will be sent a prompt where they will be given a prompt to give ratings of each of their team members that is then stored
-after this data is stored there will be overall stats in each category of performance
+.get() Functions: .get functions allows users to pull data stored in tables from their TOML files
