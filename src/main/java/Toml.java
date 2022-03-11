@@ -81,7 +81,14 @@ public class Toml
 					result[1] += line.charAt(i++);
 				}
 			} else {
-				while(line.charAt(i) != '\n') {
+				boolean strings = false;
+
+				while(line.charAt(i) != '\n' && (line.charAt(i) != '#' && !strings)) {
+
+					if(line.charAt(i) == '"') {
+						strings = true;
+					}
+
 					result[1] += line.charAt(i++);
 				}
 			}
