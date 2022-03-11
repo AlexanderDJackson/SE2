@@ -1,13 +1,8 @@
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.stream.Stream;
 
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.charset.StandardCharsets;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -35,7 +30,7 @@ public class Toml
 		name = "";
 	}
 
-	public static String[] parseLine(String line) {
+	public String[] parseLine(String line) {
 		int i = 0;
 		String[] result;
 
@@ -110,7 +105,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
-	public static HashMap<String, Object> parseToml(String tomlString) {
+	public HashMap<String, Object> parseToml(String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
@@ -132,18 +127,5 @@ public class Toml
 		}
 	
 		return table;
-	}
-
-	public static void main(String[] args) {
-		String content = "";
-
-		try {
-			content = new String(Files.readAllBytes(Paths.get("src/main/resources/example.toml")));
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
-
-		System.out.println("\n\n" + parseToml(content).toString());
-
 	}
 }
