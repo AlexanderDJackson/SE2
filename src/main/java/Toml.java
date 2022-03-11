@@ -81,7 +81,7 @@ public class Toml
 					result[1] += line.charAt(i++);
 				}
 			} else {
-				while(line.charAt(i) != '\n' && line.charAt(i) != '#') {
+				while(line.charAt(i) != '\n') {
 					result[1] += line.charAt(i++);
 				}
 			}
