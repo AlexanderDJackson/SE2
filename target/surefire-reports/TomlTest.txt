@@ -1,12 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: TomlTest
 -------------------------------------------------------------------------------
-Tests run: 6, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 0.041 s <<< FAILURE! - in TomlTest
-testCommentInStringArray(TomlTest)  Time elapsed: 0.007 s  <<< FAILURE!
-java.lang.AssertionError
-	at TomlTest.testCommentInStringArray(TomlTest.java:51)
-
-testCommentAfter(TomlTest)  Time elapsed: 0 s  <<< FAILURE!
-java.lang.AssertionError
-	at TomlTest.testCommentAfter(TomlTest.java:35)
-
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.028 s - in TomlTest

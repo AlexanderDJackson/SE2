@@ -81,14 +81,21 @@ public class Toml
 					result[1] += line.charAt(i++);
 				}
 			} else {
-				boolean strings = false;
+				boolean inString = false;
+				boolean inArray = line.charAt(i) == '[';
 
-				while(line.charAt(i) != '\n' && (line.charAt(i) != '#' && !strings)) {
+				while(line.charAt(i) != '\n' &&
+					((line.charAt(i) != '#' && line.charAt(i) != ' ') || inString || inArray) &&
+					 (line.charAt(i) != '[' || inArray)) {
 
 					if(line.charAt(i) == '"') {
-						strings = true;
+						inString = true;
 					}
-
+					
+					if(line.charAt(i) == '[') {
+						inArray = !inString && true;
+					}
+					
 					result[1] += line.charAt(i++);
 				}
 			}

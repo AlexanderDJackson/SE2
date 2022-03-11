@@ -47,8 +47,6 @@ public class TomlTest
 
     @Test
     public void testCommentInStringArray() {
-        System.out.println(toml.parseToml("a = [ \"#b\", \"#c\" ]").get("a"));
         assertTrue(toml.parseToml("a = [ \"#b\", \"#c\" ]").get("a").equals("[ \"#b\", \"#c\" ]"));
     }  
-
 }
