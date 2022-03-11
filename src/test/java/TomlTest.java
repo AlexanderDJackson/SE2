@@ -1,12 +1,13 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
  * Unit test for simple App.
  */
-public class SE2FightFightTest 
+public class TomlTest 
 {
     /**
      * Rigorous Test :-)
@@ -18,30 +19,36 @@ public class SE2FightFightTest
         toml = new Toml();
     }
 
-    @Test
+    /* @Test
     public void shouldAnswerWithTrue()
     {
         assertTrue( true );
-    }
+    } */
 
     @Test
     public void testComment() {
-        assertEquals(toml.parseToml("#guh/n"), null);
+        assertEquals(toml.parseToml("#guh/n"), new HashMap<String, Object>());
     }
 
     @Test
     public void testCommentAfter() {
-        assertEquals(toml.parseToml("id = 123 # This is a comment"), null);
+        assertTrue(toml.parseToml("id = 123 # This is a comment").get("id").equals("123"));
+    }
+
+    @Test
+    public void testCommentAfterString() {
+        assertTrue(toml.parseToml("id = \"buh\" # This is a comment").get("id").equals("buh"));
     }
 
     @Test
     public void testCommentInString() {
-        assertEquals(toml.parseToml("a = \"#b\"").getString("a"), "#b");
+        assertTrue(toml.parseToml("a = \"#b\"").get("a").equals("#b"));
     }
 
     @Test
     public void testCommentInStringArray() {
-        assertEquals(toml.parseToml("a = [ \"#b\", \"#c\" ]").getArray("a"), "[ \"#b\", \"#c\" ]");
+        System.out.println(toml.parseToml("a = [ \"#b\", \"#c\" ]").get("a"));
+        assertTrue(toml.parseToml("a = [ \"#b\", \"#c\" ]").get("a").equals("[ \"#b\", \"#c\" ]"));
     }  
 
 }
