@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class Toml
 {
-	Toml table;
+	HashMap<String, Object> table;
 	String name;
 
 	/**
@@ -30,7 +30,10 @@ public class Toml
 	 *
 	 * @param toml The TOML string to parse
 	 */
-	public Toml(String toml) { }
+	public Toml() {
+		table = new HashMap<String, Object>();
+		name = "";
+	}
 
 	public static String[] parseLine(String line) {
 		int i = 0;
