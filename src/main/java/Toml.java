@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class Toml
 {
-	HashMap<String, Object> table;
+	Toml table;
 	String name;
 
 	/**
@@ -54,8 +54,8 @@ public class Toml
 			result = new String[1];
 			result[0] = "";
 
-			while(line.charAt(i) != ']') {
-				result[0] += line.charAt(i++);
+			while(line.charAt(++i) != ']') {
+				result[0] += line.charAt(i);
 			}
 
 			return result;
