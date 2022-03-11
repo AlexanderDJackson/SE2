@@ -1,0 +1,14 @@
+@startuml
+skinparam actorStyle Hollow
+:Library: --> (Store)
+:Library: --> (Look Up)
+:Program: --> (Call)
+:Program: --> (Recieve)
+:Person: --> (Write)
+"Stores TOML key/value pairs in HashMap" as (Store)
+"Look up value based on key" as (Look Up)
+"Calls functions" as (Call)
+"Recieves TOML data" as (Recieve)
+"Writes program using imported library" as (Write)
+
+@enduml
