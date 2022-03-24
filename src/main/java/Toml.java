@@ -1,5 +1,7 @@
 import java.util.HashMap;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -30,68 +32,102 @@ public class Toml
 		name = "";
 	}
 
-	public String[] parseLine(String line) {
+	public Object[] parseLine(String line) {
 		int i = 0;
-		String[] result;
+		Object[] result;
 
 		if(line == null) {
 			return null;
 		}
 
+		// Remove leading whitespace
 		while(line.charAt(i) == ' ' || line.charAt(i) == '\t') {
 			i++;
 		}
 
+		// Skip blank lines
 		if(line.charAt(i) == '\n') {
 			return null;
 		}
 
+		// Skip comments
 		if(line.charAt(i) == '#') {
 			return null;
+		// Line is a table header
 		} else if(line.charAt(i) == '[') {
-			result = new String[1];
-			result[0] = "";
+			result = new Object[1];
+			result[0] = new String("");
 
+			// Read to end of table header
 			while(line.charAt(++i) != ']') {
-				result[0] += line.charAt(i);
+				result[0] = result[0].toString() + line.charAt(i);
 			}
 
 			return result;
+		// Line is a key-value pair
 		} else {
-			result = new String[2];
+			result = new Object[2];
 			result[0] = "";
-			result[1] = "";
 
+			// Read to end of key
 			while(line.charAt(i) != '=' && line.charAt(i) != ' ') {
-				result[0] += line.charAt(i++);
+				result[0] = result[0].toString() + line.charAt(i++);
 			}
-
+	
+			// Skip whitespace and = sign
 			while(line.charAt(i) == '=' || line.charAt(i) == ' ') {
 				i++;
 			}
 
+			// Value is a string
 			if(line.charAt(i) == '"') {
+				result[1] = "";
 				i++;
 				while(line.charAt(i) != '"') {
-					result[1] += line.charAt(i++);
+					result[1] = result[1].toString() + line.charAt(i++);
 				}
+			// Value is not a string
 			} else {
+				String temp = "";
 				boolean inString = false;
 				boolean inArray = line.charAt(i) == '[';
 
+				// Read to newline
 				while(line.charAt(i) != '\n' &&
+					// Or beginning of comment unless in a string or array
 					((line.charAt(i) != '#' && line.charAt(i) != ' ') || inString || inArray) &&
+					// Or beginning of array unless in a array
 					 (line.charAt(i) != '[' || inArray)) {
 
+					// Keep track of whether we're in a string
 					if(line.charAt(i) == '"') {
 						inString = true;
 					}
 					
+					// Keep track of whether we're in a string
 					if(line.charAt(i) == '[') {
-						inArray = !inString && true;
+						inArray = true;
 					}
 					
-					result[1] += line.charAt(i++);
+					// Add character to value
+					// Add character to value
+					temp += line.charAt(i++);
+				}
+
+				if(temp.charAt(0) == '"' || temp.charAt(0) == '[') {
+					result[1] = temp;
+				} else if(temp.equals("true") || temp.equals("false")) {
+					result[1] = Boolean.parseBoolean(temp);
+				} else if(temp.contains(":") && !temp.contains("E-") && !temp.contains("e-")) {
+					if(temp.contains(":") && temp.contains("-")) {
+						result[1] = LocalDateTime.parse(temp);
+					} else if(temp.contains(":")) {
+						result[1] = LocalTime.parse(temp);
+					} else {
+						result[1] = LocalDate.parse(temp);
+					}
+				} else {
+					result[1] = Integer.parseInt(temp);
 				}
 			}
 			
@@ -113,12 +149,12 @@ public class Toml
 		String line;
 		try {
 			while((line = reader.readLine()) != null) {
-				String[] result = parseLine(line + '\n');
+				Object[] result = parseLine(line + '\n');
 				if(result != null) {
 					if(result.length == 1) {
-						table.put(result[0], new HashMap<String, Object>());
+						table.put(result[0].toString(), new HashMap<String, Object>());
 					} else {
-						table.put(result[0], result[1]);
+						table.put(result[0].toString(), result[1]);
 					}
 				}
 			}
