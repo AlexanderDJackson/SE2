@@ -16,6 +16,7 @@ import java.io.StringReader;
 
 /**
  * The Toml class is the main class for the Toml Java implementation.
+ * @param
  */
 public class Toml
 {
@@ -89,7 +90,7 @@ public class Toml
 			// Value is not a string
 			} else {
 				String temp = "";
-				boolean inString = false;
+				boolean inString = line.charAt(i) == '"';
 				boolean inArray = line.charAt(i) == '[';
 
 				// Read to newline
@@ -127,7 +128,40 @@ public class Toml
 						result[1] = LocalDate.parse(temp);
 					}
 				} else {
-					result[1] = Integer.parseInt(temp);
+					if(temp.contains("nan") || temp.contains("inf")) {
+						switch(temp) {
+							case "inf":
+								result[1] = Double.POSITIVE_INFINITY;
+								break;
+							case "+inf":
+								result[1] = Double.POSITIVE_INFINITY;
+								break;
+							case "-inf":
+								result[1] = Double.NEGATIVE_INFINITY;
+								break;
+							default:
+								result[1] = Double.NaN;
+								break;
+						}
+					} else {
+						String prefix = temp.substring(0, 2);
+						temp = temp.substring(2, temp.length());
+
+						switch (prefix) {
+							case "0x":
+								result[1] = Integer.parseInt(temp, 16);
+								break;
+							case "0o":
+								result[1] = Integer.parseInt(temp, 8);
+								break;
+							case "0b":
+								result[1] = Integer.parseInt(temp, 2);
+								break;
+							default:
+								result[1] = Integer.parseInt(prefix + temp);
+								break;
+						}
+					}
 				}
 			}
 			
@@ -141,9 +175,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
-	public HashMap<String, Object> parseToml(String tomlString) {
-		HashMap<String, Object> table = new HashMap<String, Object>();
-
+	public void parseToml(String tomlString) {
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 
 		String line;
@@ -152,16 +184,68 @@ public class Toml
 				Object[] result = parseLine(line + '\n');
 				if(result != null) {
 					if(result.length == 1) {
-						table.put(result[0].toString(), new HashMap<String, Object>());
+						this.table.put(result[0].toString(), new HashMap<String, Object>());
 					} else {
-						table.put(result[0].toString(), result[1]);
+						this.table.put(result[0].toString(), result[1]);
 					}
 				}
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-	
-		return table;
+	}
+
+	/**
+	 * Return the int associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public int getInt(String key) {
+		return (Integer) this.table.get(key);
+	}
+
+	/**
+	 * Return the boolean associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public Boolean getBoolean(String key) {
+		return (Boolean) this.table.get(key);
+	}
+
+	/**
+	 * Return the String associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public String getString(String key) {
+		return (String) this.table.get(key);
+	}
+
+	/**
+	 * Return the Date associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public LocalDate getDate(String key) {
+		return (LocalDate) this.table.get(key);
+	}
+
+	/**
+	 * Return the Time associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public LocalTime getTime(String key) {
+		return (LocalTime) this.table.get(key);
+	}
+
+	/**
+	 * Return the DateTime associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public LocalDateTime getDateTime(String key) {
+		return (LocalDateTime) this.table.get(key);
 	}
 }
