@@ -37,7 +37,7 @@ public class TomlTest
 
     @Test
     public void testCommentAfter() {
-        assertTrue(toml.parseToml("id = 123 # This is a comment").get("id").equals("123"));
+        assertTrue((Integer) toml.parseToml("id = 123 # This is a comment").get("id") == 123);
     }
 
     @Test
