@@ -253,22 +253,29 @@ public class TomlTest
     @Test
     public void testHex2() {
         Toml toml = new Toml();
-        toml.parseToml("num = 0x123");
-        assertTrue(toml.getInt("num") == 0x123);
-    }
-
-    @Test
-    public void testHex3() {
-        Toml toml = new Toml();
         toml.parseToml("num = 0xbead");
         assertTrue(toml.getInt("num") == 0xbead);
     }
 
     @Test
-    public void testHex4() {
+    public void testHex3() {
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead_deed");
         assertTrue(toml.getInt("num") == 0xbeaddeed);
+    }
+
+    @Test
+    public void testHex4() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 0x123");
+        assertTrue(toml.getInt("num") == 0x123);
+    }
+
+    @Test
+    public void testHex5() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 0x0123");
+        assertTrue(toml.getInt("num") == 0x0123);
     }
 
     @Test
@@ -318,5 +325,12 @@ public class TomlTest
         Toml toml = new Toml();
         toml.parseToml("num = 0b000");
         assertTrue(toml.getInt("num") == 0b000);
+    }
+
+    @Test
+    public void testBinary4() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 0b0101");
+        assertTrue(toml.getInt("num") == 0b0101);
     }
 }
