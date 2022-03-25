@@ -228,47 +228,46 @@ public class TomlTest
         assertTrue(toml.getInt("num") == 0b0101);
     }
 
-    /*
     @Test
     public void testFloatPositive() {
         Toml toml = new Toml();
         toml.parseToml("num = 3.1415");
-        assertTrue(toml.getInt("num") == 3.1415);
+        assertTrue(toml.getDouble("num") == 3.1415);
     }
 
     @Test
     public void testFloatWithPlus() {
         Toml toml = new Toml();
         toml.parseToml("num = +1.0");
-        assertTrue(toml.getInt("num") == 1.0);
+        assertTrue(toml.getDouble("num") == 1.0);
     }
 
     @Test
     public void testFloatZero() {
         Toml toml = new Toml();
         toml.parseToml("num = 0.0");
-        assertTrue(toml.getInt("num") == 0.0);
+        assertTrue(toml.getDouble("num") == 0.0);
     }
 
     @Test
     public void testFloatNegative() {
         Toml toml = new Toml();
         toml.parseToml("num = -0.01");
-        assertTrue(toml.getInt("num") == -0.01);
+        assertTrue(toml.getDouble("num") == -0.01);
     }
 
     @Test
     public void testFloatSeparators() {
         Toml toml = new Toml();
         toml.parseToml("num = 224_617.445_991_228");
-        assertTrue(toml.getInt("num") == 224617.445991228);
+        assertTrue(toml.getDouble("num") == 224617.445991228);
     }
 
     @Test
     public void testFloatSeparatorsNegative() {
         Toml toml = new Toml();
         toml.parseToml("num = -224_617.445_991_228");
-        assertTrue(toml.getInt("num") == -224617.445991228);
+        assertTrue(toml.getDouble("num") == -224617.445991228);
     }
 
     @Test
@@ -278,6 +277,7 @@ public class TomlTest
         assertTrue(toml.getInt("num") == -1);
     }
 
+    /*
     @Test
     public void testNan() {
         Toml toml = new Toml();
@@ -334,7 +334,5 @@ public class TomlTest
         assertTrue(toml.getInt("num") == 5e22);
         //(5*Math.pow(10,22))
     }
-
-
 */
 }

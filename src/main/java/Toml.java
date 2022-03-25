@@ -165,12 +165,12 @@ public class Toml
 							default:
 								temp = prefix + temp;
 
-								if(temp.contains("-")) {
-									result[1] = Double.valueOf(temp);
+								if(temp.substring(1, temp.length()).contains("-") || temp.contains(".")) {
+									result[1] = Double.valueOf(temp.replace("_", ""));
 								} else if(temp.contains("e") || temp.contains("E")) {
-									result[1] = Double.valueOf(temp).intValue();
+									result[1] = Double.valueOf(temp.replace("_", "")).intValue();
 								} else {
-									result[1] = Integer.parseInt(temp);
+									result[1] = Integer.parseInt(temp.replace("_", ""));
 								}
 
 								break;
