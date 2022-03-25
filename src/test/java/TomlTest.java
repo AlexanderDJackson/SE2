@@ -277,26 +277,25 @@ public class TomlTest
         assertTrue(toml.getInt("num") == -1);
     }
 
-    /*
     @Test
     public void testNan() {
         Toml toml = new Toml();
         toml.parseToml("num = nan");
-        assertTrue(toml.getDouble("num") == Double.NaN);
+        assertTrue(Double.isNaN(toml.getDouble("num")));
     }
 
     @Test
     public void testNanWithPlus() {
         Toml toml = new Toml();
         toml.parseToml("num = +nan");
-        assertTrue(toml.getDouble("num") == Double.NaN);
+        assertTrue(Double.isNaN(toml.getDouble("num")));
     }
 
     @Test
     public void testNanWithMinus() {
         Toml toml = new Toml();
         toml.parseToml("num = -nan");
-        assertTrue(toml.getDouble("num") == Double.NaN);
+        assertTrue(Double.isNaN(toml.getDouble("num")));
     }
 
     @Test
@@ -306,11 +305,12 @@ public class TomlTest
         assertTrue(toml.getInt("num") == 1e06);
     }
 
+    /*
     @Test
     public void testHex3() {
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead_deed");
-        assertTrue(toml.getInt("num") == 0xbeaddeed);
+        assertTrue(toml.getLong("num") == Long.valueOf(0xbeaddeed, 16));
     }
 
     @Test

@@ -154,7 +154,11 @@ public class Toml
 
 						switch (prefix) {
 							case "0x":
-								result[1] = Integer.valueOf(temp.replace("_", ""), 16);
+								try {
+									result[1] = Integer.valueOf(temp.replace("_", ""), 16);
+								} catch(NumberFormatException ex) {
+									result[1] = Long.valueOf(temp.replace("_", ""), 16);
+								}
 								break;
 							case "0o":
 								result[1] = Integer.valueOf(temp.replace("_", ""), 8);
@@ -225,6 +229,15 @@ public class Toml
 	 */
 	public double getDouble(String key) {
 		return (Double) this.table.get(key);
+	}
+
+	/**
+	 * Return the Long associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public Long getLong(String key) {
+		return (Long) this.table.get(key);
 	}
 
 	/**
