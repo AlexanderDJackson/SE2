@@ -154,16 +154,25 @@ public class Toml
 
 						switch (prefix) {
 							case "0x":
-								result[1] = Integer.parseInt(temp, 16);
+								result[1] = Integer.valueOf(temp.replace("_", ""), 16);
 								break;
 							case "0o":
-								result[1] = Integer.parseInt(temp, 8);
+								result[1] = Integer.valueOf(temp.replace("_", ""), 8);
 								break;
 							case "0b":
-								result[1] = Integer.parseInt(temp, 2);
+								result[1] = Integer.valueOf(temp.replace("_", ""), 2);
 								break;
 							default:
-								result[1] = Integer.parseInt(prefix + temp);
+								temp = prefix + temp;
+
+								if(temp.contains("-")) {
+									result[1] = Double.valueOf(temp);
+								} else if(temp.contains("e") || temp.contains("E")) {
+									result[1] = Double.valueOf(temp).intValue();
+								} else {
+									result[1] = Integer.parseInt(temp);
+								}
+
 								break;
 						}
 					}
@@ -207,6 +216,15 @@ public class Toml
 	 */
 	public int getInt(String key) {
 		return (Integer) this.table.get(key);
+	}
+
+	/**
+	 * Return the double associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public double getDouble(String key) {
+		return (Double) this.table.get(key);
 	}
 
 	/**
