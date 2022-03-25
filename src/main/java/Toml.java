@@ -9,6 +9,11 @@ import java.io.StringReader;
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
  *
+ *	Class:	CS375.01	
+ *
+ *	Start Date:	03/08/22
+ *	Due Date:	04/21/22
+ *
  *	Authors: Brett Hammit (bah20a@acu.edu)
  *			 Alex Jackson (asj18a@acu.edu)
  *			 Justin Raitz (jmr18c@acu.edu)
