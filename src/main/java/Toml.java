@@ -157,7 +157,7 @@ public class Toml
 								try {
 									result[1] = Integer.valueOf(temp.replace("_", ""), 16);
 								} catch(NumberFormatException ex) {
-									result[1] = Long.valueOf(temp.replace("_", ""), 16);
+									result[1] = Long.decode((prefix + temp).replace("_", ""));
 								}
 								break;
 							case "0o":
