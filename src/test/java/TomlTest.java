@@ -323,7 +323,7 @@ public class TomlTest
     public void testScientific2() {
         Toml toml = new Toml();
         toml.parseToml("num = 5e+22");
-        assertTrue(toml.getInt("num") == 5e22);
+        assertTrue(toml.getDouble("num") == 5e22);
     }
 
     @Test
