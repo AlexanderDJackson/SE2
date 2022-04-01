@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,6 +38,34 @@ public class Toml
 		table = new HashMap<String, Object>();
 		name = "";
 	}
+
+
+	/**
+	 * Toml constructor
+	 *
+	 * @param toml The TOML string to parse
+	 */
+	public Object parseNumber(String s) {
+		// Value is a "number"
+		switch(s) {
+			case "inf":
+				return Double.POSITIVE_INFINITY;
+			case "+inf":
+				return Double.POSITIVE_INFINITY;
+			case "-inf":
+				return Double.NEGATIVE_INFINITY;
+			default:
+				if(s.toLowerCase().contains("nan")) {
+					return Double.NaN;
+
+				// Value is actually a number
+				} else {
+					System.out.println(s + ": " + Long.decode(s.replace("_", "")));
+
+					return new BigDecimal(Long.decode(s.replace("_", "")));
+				}
+	}
+		}
 
 	public Object[] parseLine(String line) {
 		int i = 0;
@@ -122,8 +151,12 @@ public class Toml
 
 				if(temp.charAt(0) == '"' || temp.charAt(0) == '[') {
 					result[1] = temp;
+
+				// Value is a boolean
 				} else if(temp.equals("true") || temp.equals("false")) {
 					result[1] = Boolean.parseBoolean(temp);
+
+				// Value is a date/time/datetime
 				} else if(temp.contains(":") && !temp.contains("E-") && !temp.contains("e-")) {
 					if(temp.contains(":") && temp.contains("-")) {
 						result[1] = LocalDateTime.parse(temp);
@@ -132,54 +165,11 @@ public class Toml
 					} else {
 						result[1] = LocalDate.parse(temp);
 					}
+
+				// Value is a number type
+				// Or NaN, because that's apparently necessary
 				} else {
-					if(temp.contains("nan") || temp.contains("inf")) {
-						switch(temp) {
-							case "inf":
-								result[1] = Double.POSITIVE_INFINITY;
-								break;
-							case "+inf":
-								result[1] = Double.POSITIVE_INFINITY;
-								break;
-							case "-inf":
-								result[1] = Double.NEGATIVE_INFINITY;
-								break;
-							default:
-								result[1] = Double.NaN;
-								break;
-						}
-					} else {
-						String prefix = temp.substring(0, 2);
-						temp = temp.substring(2, temp.length());
-
-						switch (prefix) {
-							case "0x":
-								try {
-									result[1] = Integer.valueOf(temp.replace("_", ""), 16);
-								} catch(NumberFormatException ex) {
-									result[1] = Long.decode((prefix + temp).replace("_", ""));
-								}
-								break;
-							case "0o":
-								result[1] = Integer.valueOf(temp.replace("_", ""), 8);
-								break;
-							case "0b":
-								result[1] = Integer.valueOf(temp.replace("_", ""), 2);
-								break;
-							default:
-								temp = prefix + temp;
-
-								if(temp.substring(1, temp.length()).contains("-") || temp.contains(".")) {
-									result[1] = Double.valueOf(temp.replace("_", ""));
-								} else if(temp.contains("e") || temp.contains("E")) {
-									result[1] = Double.valueOf(temp.replace("_", "")).intValue();
-								} else {
-									result[1] = Integer.parseInt(temp.replace("_", ""));
-								}
-
-								break;
-						}
-					}
+					result[1] = parseNumber(temp);
 				}
 			}
 			
@@ -214,12 +204,21 @@ public class Toml
 	}
 
 	/**
+	 * Return the float associated with the given key
+	 * 
+	 * @param key The key
+	 */
+	public float getFloat(String key) {
+		return ((BigDecimal) this.table.get(key)).floatValue();
+	}
+
+	/**
 	 * Return the int associated with the given key
 	 * 
 	 * @param key The key
 	 */
 	public int getInt(String key) {
-		return (Integer) this.table.get(key);
+		return ((BigDecimal) this.table.get(key)).intValue();
 	}
 
 	/**
@@ -228,7 +227,11 @@ public class Toml
 	 * @param key The key
 	 */
 	public double getDouble(String key) {
-		return (Double) this.table.get(key);
+		try {
+			return ((BigDecimal) this.table.get(key)).doubleValue();
+		} catch(ClassCastException ex) {
+			return (Double) this.table.get(key);
+		}
 	}
 
 	/**
@@ -237,7 +240,7 @@ public class Toml
 	 * @param key The key
 	 */
 	public Long getLong(String key) {
-		return (Long) this.table.get(key);
+		return ((BigDecimal) this.table.get(key)).longValue();
 	}
 
 	/**
