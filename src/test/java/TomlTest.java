@@ -1,5 +1,8 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+//import java.time.LocalDate;
+//import java.time.LocalTime;
+//import java.time.LocalDateTime;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -109,6 +112,41 @@ public class TomlTest
         assertTrue(toml.getInt("num") == 1);
     }
 
+    @Test
+    public void testIntPositive() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 1");
+        assertTrue(toml.getInt("num") == 1);
+    }
+
+    @Test
+    public void testIntNegative() {
+        Toml toml = new Toml();
+        toml.parseToml("num = -1");
+        assertTrue(toml.getInt("num") == -1);
+    }
+
+    @Test
+    public void testIntZero() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 0");
+        assertTrue(toml.getInt("num") == 0);
+    }
+
+    @Test
+    public void testScientific() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 1e06");
+        assertTrue(toml.getDouble("num") == 1e06);
+    }
+
+    @Test
+    public void testScientific2() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 5e+22");
+        assertTrue(toml.getDouble("num") == 5e22);
+    }
+    
     @Test
     public void testScientific3() {
         Toml toml = new Toml();
@@ -271,13 +309,6 @@ public class TomlTest
     }
 
     @Test
-    public void testIntNegative() {
-        Toml toml = new Toml();
-        toml.parseToml("num = -1");
-        assertTrue(toml.getInt("num") == -1);
-    }
-
-    @Test
     public void testNan() {
         Toml toml = new Toml();
         toml.parseToml("num = nan");
@@ -299,13 +330,6 @@ public class TomlTest
     }
 
     @Test
-    public void testScientific() {
-        Toml toml = new Toml();
-        toml.parseToml("num = 1e06");
-        assertTrue(toml.getDouble("num") == 1e06);
-    }
-
-    @Test
     public void testHex3() {
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead_deed");
@@ -315,28 +339,49 @@ public class TomlTest
     @Test
     public void testArray() {
         Toml toml = new Toml();
+        toml.parseToml("array = [ 1, 2, 3 ]");
+        assertTrue(toml.getString("array").equals("[ 1, 2, 3 ]"));
+    }
+
+    @Test
+    public void testNestedArray() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ 1, [2, 3] ]");
+        assertTrue(toml.getString("array").equals("[ 1, [2, 3] ]"));
+    }
+
+    @Test
+    public void testStringArray() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ \"Hi\", \"Hello\", \"Bye\" ]");
+        assertTrue(toml.getString("array").equals("[ \"Hi\", \"Hello\", \"Bye\" ]"));
+    }
+
+    @Test
+    public void testNestedStringArray() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"] ]");
+        assertTrue(toml.getString("array").equals("[ [\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"] ]"));
+    }
+
+    @Test
+    public void testMultiLineArray() {
+        Toml toml = new Toml();
         toml.parseToml("array = [ 1,\n2,\n3\n]");
         assertTrue(toml.getString("array").equals("[ 1,2,3]"));
     }
 
     @Test
-    public void testScientific2() {
+    public void testMultiLineNestedArray() {
         Toml toml = new Toml();
-        toml.parseToml("num = 5e+22");
-        assertTrue(toml.getDouble("num") == 5e22);
+        toml.parseToml("array = [ 1,\n[2, 3],\n4]");
+        assertTrue(toml.getString("array").equals("[ 1,[2, 3],4]"));
     }
 
-    @Test
-    public void testIntPositive() {
+    /* @Test
+    public void testDate(){
         Toml toml = new Toml();
-        toml.parseToml("num = 1");
-        assertTrue(toml.getInt("num") == 1);
-    }
-
-    @Test
-    public void testIntZero() {
-        Toml toml = new Toml();
-        toml.parseToml("num = 0");
-        assertTrue(toml.getInt("num") == 0);
-    }
+        toml.parseToml("date = 1979-05-27");
+        assertTrue(toml.getDate("date").compareTo(LocalDate.parse("1979-05-27")) == 0);
+    } */
 }

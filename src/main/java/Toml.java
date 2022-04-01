@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.util.Stack;
+//import java.util.Stack;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -204,9 +204,28 @@ public class Toml
 					line.contains("[") && 
 					// Line is not string
 					(line.indexOf("\"") <= 0 || line.indexOf("\"") > line.indexOf("["))) {
-					while(!line.endsWith("]")) {
-						line += reader.readLine();
+					
+					int brack = 1;
+					
+					// Line doesn't end with closing bracket and unmatched opening brackets remain
+					while(!line.endsWith("]") && brack != 0) {
+						String temp = reader.readLine();
+						// Loop through temp String
+						for(int i = 0; i < temp.length() - 1; i++)
+						{
+							// Increment i if opening bracket
+							if(temp.charAt(i) == '[') {
+								brack++;
+							}
+							// Decrement i if closing bracket
+							if(temp.charAt(i) == ']') {
+								brack--;	
+							}
+						}
+						// Append temp to line
+						line += temp;
 					}
+					//System.out.println(line);
 				}
 
 				Object[] result = parseLine(line + '\n');
@@ -274,6 +293,7 @@ public class Toml
 	 * @param key The key
 	 */
 	public LocalDate getDate(String key) {
+		System.out.println((LocalDate) this.table.get(key));
 		return (LocalDate) this.table.get(key);
 	}
 
