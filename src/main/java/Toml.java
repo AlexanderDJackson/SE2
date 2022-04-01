@@ -149,35 +149,35 @@ public class Toml
 								break;
 						}
 					} else {
-						String prefix = temp.substring(0, 2);
-						temp = temp.substring(2, temp.length());
 
-						switch (prefix) {
-							case "0x":
-								try {
-									result[1] = Integer.valueOf(temp.replace("_", ""), 16);
-								} catch(NumberFormatException ex) {
-									result[1] = Long.decode((prefix + temp).replace("_", ""));
+						if(temp.contains("x") || temp.contains("o") || temp.contains("b")) {
+							String prefix = temp.substring(0, 2);
+							temp = temp.substring(2, temp.length());
+
+							switch (prefix) {
+								case "0x":
+									try {
+										result[1] = Integer.valueOf(temp.replace("_", ""), 16);
+									} catch(NumberFormatException ex) {
+										result[1] = Long.decode((prefix + temp).replace("_", ""));
+									}
+									break;
+								case "0o":
+									result[1] = Integer.valueOf(temp.replace("_", ""), 8);
+									break;
+								case "0b":
+									result[1] = Integer.valueOf(temp.replace("_", ""), 2);
+									break;
 								}
-								break;
-							case "0o":
-								result[1] = Integer.valueOf(temp.replace("_", ""), 8);
-								break;
-							case "0b":
-								result[1] = Integer.valueOf(temp.replace("_", ""), 2);
-								break;
-							default:
-								temp = prefix + temp;
-
+							} else {
 								if(temp.substring(1, temp.length()).contains("-") || temp.contains(".")) {
 									result[1] = Double.valueOf(temp.replace("_", ""));
 								} else if(temp.contains("e") || temp.contains("E")) {
-									result[1] = Double.valueOf(temp.replace("_", "")).intValue();
+								result[1] = Double.valueOf(temp.replace("_", ""));
 								} else {
 									result[1] = Integer.parseInt(temp.replace("_", ""));
 								}
-
-								break;
+							}
 						}
 					}
 				}
@@ -185,8 +185,6 @@ public class Toml
 			
 			return result;
 		}
-
-	}
 
 	/**
 	 * Parse the TOML string into a HashMap
