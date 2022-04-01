@@ -98,7 +98,7 @@ public class TomlTest
     @Test
     public void testOpeningBracket() {
         Toml toml = new Toml();
-        toml.parseToml("bracket = [");
+        toml.parseToml("bracket = \"[\"");
         assertTrue(toml.getString("bracket").equals("["));        
     }
 
@@ -310,6 +310,13 @@ public class TomlTest
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead_deed");
         assertTrue(toml.getLong("num").equals(Long.decode("0xbeaddeed")));
+    }
+
+    @Test
+    public void testArray() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ 1,\n2,\n3\n]");
+        assertTrue(toml.getString("array").equals("[ 1,2,3]"));
     }
 
     /*
