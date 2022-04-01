@@ -5,6 +5,7 @@ import java.time.LocalTime;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.util.Stack;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -116,7 +117,6 @@ public class Toml
 					}
 					
 					// Add character to value
-					// Add character to value
 					temp += line.charAt(i++);
 				}
 
@@ -197,6 +197,18 @@ public class Toml
 		String line;
 		try {
 			while((line = reader.readLine()) != null) {
+				
+				// Line consists of key/value pair
+				if(line.contains("=") &&
+					// Line consists of array
+					line.contains("[") && 
+					// Line is not string
+					(line.indexOf("\"") <= 0 || line.indexOf("\"") > line.indexOf("["))) {
+					while(!line.endsWith("]")) {
+						line += reader.readLine();
+					}
+				}
+
 				Object[] result = parseLine(line + '\n');
 				if(result != null) {
 					if(result.length == 1) {

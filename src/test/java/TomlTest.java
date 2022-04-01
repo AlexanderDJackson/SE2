@@ -98,7 +98,7 @@ public class TomlTest
     @Test
     public void testOpeningBracket() {
         Toml toml = new Toml();
-        toml.parseToml("bracket = [");
+        toml.parseToml("bracket = \"[\"");
         assertTrue(toml.getString("bracket").equals("["));        
     }
 
@@ -313,6 +313,20 @@ public class TomlTest
     }
 
     @Test
+    public void testArray() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ 1,\n2,\n3\n]");
+        assertTrue(toml.getString("array").equals("[ 1,2,3]"));
+    }
+
+    @Test
+    public void testScientific2() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 5e+22");
+        assertTrue(toml.getInt("num") == 5e22);
+    }
+
+    @Test
     public void testIntPositive() {
         Toml toml = new Toml();
         toml.parseToml("num = 1");
@@ -324,12 +338,5 @@ public class TomlTest
         Toml toml = new Toml();
         toml.parseToml("num = 0");
         assertTrue(toml.getInt("num") == 0);
-    }
-
-    @Test
-    public void testScientific2() {
-        Toml toml = new Toml();
-        toml.parseToml("num = 5e+22");
-        assertTrue(toml.getDouble("num") == 5e22);
     }
 }
