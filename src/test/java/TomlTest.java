@@ -379,6 +379,20 @@ public class TomlTest
     }
 
     /* @Test
+    public void testDate() {
+        Toml toml = new Toml();
+        toml.parseToml("date = 2022-03-31");
+        assertTrue(toml.getDate("date").equals("2022-03-31"));
+    }
+
+    @Test
+    public void testTime() {
+        Toml toml = new Toml();
+        toml.parseToml("time = 23:29:09.58760");
+        assertTrue(toml.getTime("time").equals("23:29:09.58760"));
+    }
+
+    @Test
     public void testDate(){
         Toml toml = new Toml();
         toml.parseToml("date = 1979-05-27");
