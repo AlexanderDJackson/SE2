@@ -1,8 +1,13 @@
 import java.util.HashMap;
+import java.util.Arrays;
+import java.util.ArrayList;
+
+import java.math.BigDecimal;
 
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.io.FileReader;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -30,74 +35,69 @@ public class Toml
 		name = "";
 	}
 
-	public String[] parseLine(String line) {
+	public static String[] tokenize(String line) {
+		String[] tokens = new String[] {"", ""};
 		int i = 0;
-		String[] result;
 
-		if(line == null) {
+		if(line == null || line.length() == 0) {
 			return null;
 		}
 
-		while(line.charAt(i) == ' ' || line.charAt(i) == '\t') {
-			i++;
-		}
-
-		if(line.charAt(i) == '\n') {
-			return null;
-		}
+		// Find first non-whitespace character
+		while(Character.isWhitespace(line.charAt(i))) { i++; }
 
 		if(line.charAt(i) == '#') {
 			return null;
-		} else if(line.charAt(i) == '[') {
-			result = new String[1];
-			result[0] = "";
+		}
 
+		if(line.charAt(i) == '[') {
 			while(line.charAt(++i) != ']') {
-				result[0] += line.charAt(i);
+				tokens[0] += line.charAt(i);
 			}
+
+			return new String[] {tokens[0]};
 		} else {
-			result = new String[2];
-			result[0] = "";
-			result[1] = "";
-
-			while(line.charAt(i) != '=' && line.charAt(i) != ' ') {
-				result[0] += line.charAt(i++);
+			// Read the key
+			while(!(line.charAt(i) == '=') && !(line.charAt(i) == ' ')) {
+				tokens[0] += line.charAt(i++);
 			}
 
-			while(line.charAt(i) == '=' || line.charAt(i) == ' ') {
-				i++;
-			}
+			// Read past the equals sign and whitespace
+			while(line.charAt(i) == '=' || line.charAt(i) == ' ') { i++; }
 
-			if(line.charAt(i) == '"') {
-				i++;
-				while(line.charAt(i) != '"') {
-					result[1] += line.charAt(i++);
-				}
-			} else {
-				boolean inString = false;
-				boolean inArray = line.charAt(i) == '[';
-
-				while(line.charAt(i) != '\n' &&
-					((line.charAt(i) != '#' && line.charAt(i) != ' ') || inString || inArray) &&
-					 (line.charAt(i) != '[' || inArray)) {
-
-					if(line.charAt(i) == '"') {
-						inString = true;
-					}
-					
-					if(line.charAt(i) == '[') {
-						inArray = !inString && true;
-					}
-					
-					result[1] += line.charAt(i++);
-				}
+			// Read the value
+			while(i != line.length()) {
+				tokens[1] += line.charAt(i++);
 			}
 		}
 
-		System.out.println(Arrays.toString(result));
-		
-		return result;
+		return tokens;
+	}
 
+	public static Object[] parseArray(String array) {
+		ArrayList<Object> list = new ArrayList<Object>();
+		Boolean inString = false;
+
+		for(int i = 0; i < array.length(); i++) {
+			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
+			if(array.charAt(i) == '[') {
+				int j = 1;
+
+				while(array.charAt(i++) != ']') {
+				}
+		}
+	}
+
+	public static Object parseValue(String value) {
+		if(value.charAt(0) == '"') {
+			return value.substring(1, value.length() - 1);
+		} else if(value.charAt(0) == 't' || value.charAt(0) == 'f') {
+			return Boolean.parseBoolean(value);
+		} else if(value.charAt(0) == '[' || value.charAt(0) == '{') {
+			return parseArray(value);
+		} else {
+			return new BigDecimal(value);
+		}
 	}
 
 	/**
@@ -127,5 +127,18 @@ public class Toml
 		}
 	
 		return table;
+	}
+
+	static public void main(String[] args) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
+
+			String line;
+			while((line = reader.readLine()) != null) {
+				System.out.println(Arrays.toString(tokenize(line)));
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
