@@ -312,7 +312,6 @@ public class TomlTest
         assertTrue(toml.getLong("num").equals(Long.decode("0xbeaddeed")));
     }
 
-    /*
     @Test
     public void testScientific2() {
         Toml toml = new Toml();
@@ -333,5 +332,4 @@ public class TomlTest
         toml.parseToml("num = 0");
         assertTrue(toml.getInt("num") == 0);
     }
-*/
 }

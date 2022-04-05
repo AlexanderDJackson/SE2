@@ -39,33 +39,64 @@ public class Toml
 		name = "";
 	}
 
+	/**
+	 * Parse binary literal string to long
+	 *
+	 * @param toml The TOML string to parse
+	 */
+	public static Long parseBinaryOctalLiteral(String s)
+	{
+		if (s == null)
+			throw new NumberFormatException("null");
+
+		s = s.toLowerCase();
+
+		Boolean isBaseTwo = s.contains("b");
+
+		if (s.startsWith("0b") || s.startsWith("0o"))
+			s = s.substring(2);
+		else if (s.startsWith("-0b") || s.startsWith("-0o"))
+			s = "-" + s.substring(3);
+		else if (s.startsWith("+0b") || s.startsWith("+0o"))
+			s = s.substring(3);
+		else
+			throw new NumberFormatException("For input string: \"" + s + "\"");
+
+		return isBaseTwo ? Long.parseLong(s, 2) : Long.parseLong(s, 8);
+	}
 
 	/**
-	 * Toml constructor
+	 * Parse string to BigDecimal
 	 *
 	 * @param toml The TOML string to parse
 	 */
 	public Object parseNumber(String s) {
 		// Value is a "number"
-		switch(s) {
-			case "inf":
-				return Double.POSITIVE_INFINITY;
-			case "+inf":
-				return Double.POSITIVE_INFINITY;
-			case "-inf":
-				return Double.NEGATIVE_INFINITY;
-			default:
-				if(s.toLowerCase().contains("nan")) {
-					return Double.NaN;
+		if(s.toLowerCase().contains("nan")) {
+			return Double.NaN;
+		} else if(s.toLowerCase().contains("inf")) {
+			return s.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+		// Value is actually a number
+		} else {
+			s = s.replace("_", "");
+			s = s.charAt(0) == 'b' || s.charAt(0) == 'x' || s.charAt(0) == 'o' ? "0" + s : s;
 
-				// Value is actually a number
-				} else {
-					System.out.println(s + ": " + Long.decode(s.replace("_", "")));
-
-					return new BigDecimal(Long.decode(s.replace("_", "")));
+			System.out.println(s);
+			try {
+				System.out.print("Long.decode(): ");
+				System.out.println(Long.decode(s));
+				return new BigDecimal(Long.decode(s));
+			} catch(NumberFormatException e) {
+				try {
+					System.out.print("BigDecimal(): ");
+					System.out.println(BigDecimal(s) + "\n\n");
+					return new BigDecimal(s);
+				} catch(NumberFormatException e2) {
+					return new BigDecimal(parseBinaryOctalLiteral(s));
 				}
-	}
+			}
 		}
+	}
 
 	public Object[] parseLine(String line) {
 		int i = 0;
