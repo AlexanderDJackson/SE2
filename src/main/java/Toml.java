@@ -55,8 +55,6 @@ public class Toml
 			while(line.charAt(++i) != ']') {
 				result[0] += line.charAt(i);
 			}
-
-			return result;
 		} else {
 			result = new String[2];
 			result[0] = "";
@@ -94,9 +92,11 @@ public class Toml
 					result[1] += line.charAt(i++);
 				}
 			}
-			
-			return result;
 		}
+
+		System.out.println(Arrays.toString(result));
+		
+		return result;
 
 	}
 
