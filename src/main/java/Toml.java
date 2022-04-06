@@ -82,12 +82,13 @@ public class Toml
 	public static Object[] parseArray(String array) {
 		ArrayList<Object> list = new ArrayList<Object>();
 		Boolean inString = false;
-		int index = 0;
+		int index = 1;
 
 		for(int i = 1; i < array.length(); i++) {
-			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
+			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
+
 			if(array.charAt(i) == '[') {
-				index = i;
+				index = i++;
 				int j = 1;
 
 				while(array.charAt(i) != ']') {
@@ -99,16 +100,23 @@ public class Toml
 						j--;
 					}
 
+					System.out.print(array.substring(0, i) + "|" + array.charAt(i) + "|" + array.substring(i + 1));
+					System.out.print(" && j: " + j);
+					System.out.println(" && i: " + i);
+
 					i++;
 
 					if(j == 0) {
+						System.out.println("Parsing: " + array.substring(index, i));
 						parseArray(array.substring(index, i + 1));
 					}
 				}
 			} else if(array.charAt(i) == ',' && !inString) {
+				System.out.println("Adding: " + array.substring(index, i));
 				list.add(parseValue(array.substring(index, i)));
-				index = i + 1;
-			} else if(i == array.length() - 2) {
+				index = array.charAt(i + 1) != ' ' ? i + 1 : i + 2;
+			}else if(i == array.length() - 2) {
+				System.out.println("Adding: " + array.substring(index, i));
 				list.add(parseValue(array.substring(index, i + 1)));
 			}
 
@@ -172,6 +180,7 @@ public class Toml
 
 	static public void main(String[] args) {
 		try {
+			/*
 			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 
 			String line;
@@ -186,7 +195,13 @@ public class Toml
 					}
 				}
 			}
-		} catch(IOException e) {
+			*/
+			String test = "guh = [[\"a\", \"b\", \"c\"], [\"d\", \"e\", \"f\"]]";
+			System.out.println(Arrays.toString(tokenize(test)));
+			for(String o : ((String[]) parseArray(test)[0])) {
+				System.out.println(o);
+			}
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}
