@@ -88,10 +88,10 @@ public class Toml
 			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
 
 			if(array.charAt(i) == '[') {
-				index = i++;
-				int j = 1;
+				index = i;
+				int j = 0;
 
-				while(array.charAt(i) != ']') {
+				while(true) {
 					if(array.charAt(i) == '"') {
 						inString = !inString;
 					} else if(array.charAt(i) == '[' && !inString) {
@@ -100,27 +100,33 @@ public class Toml
 						j--;
 					}
 
+					/*
 					System.out.print(array.substring(0, i) + "|" + array.charAt(i) + "|" + array.substring(i + 1));
 					System.out.print(" && j: " + j);
-					System.out.println(" && i: " + i);
+					System.out.print(" && i: " + i);
+					System.out.println(" && inString: " + inString);
+					*/
 
 					i++;
 
 					if(j == 0) {
 						System.out.println("Parsing: " + array.substring(index, i));
 						parseArray(array.substring(index, i + 1));
+						break;
 					}
 				}
-			} else if(array.charAt(i) == ',' && !inString) {
+			} else if((array.charAt(i) == ',' || array.charAt(i) == ']') && !inString) {
 				System.out.println("Adding: " + array.substring(index, i));
 				list.add(parseValue(array.substring(index, i)));
 				index = array.charAt(i + 1) != ' ' ? i + 1 : i + 2;
-			}else if(i == array.length() - 2) {
-				System.out.println("Adding: " + array.substring(index, i));
-				list.add(parseValue(array.substring(index, i + 1)));
+				i = array.charAt(i + 1) == ']' ? array.length() : i;
 			}
 
 			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
+
+			System.out.print(array.substring(0, i) + "|" + array.charAt(i) + "|" + array.substring(i + 1));
+			System.out.print(" && i: " + i);
+			System.out.println(" && inString: " + inString);
 		}
 
 		return list.toArray();
@@ -198,9 +204,7 @@ public class Toml
 			*/
 			String test = "guh = [[\"a\", \"b\", \"c\"], [\"d\", \"e\", \"f\"]]";
 			System.out.println(Arrays.toString(tokenize(test)));
-			for(String o : ((String[]) parseArray(test)[0])) {
-				System.out.println(o);
-			}
+			System.out.println(parseArray(tokenize(test)[1]));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
