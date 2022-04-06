@@ -1,12 +1,17 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
-import java.util.ArrayList;
+
+import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.LocalDate;
 
 import java.math.BigDecimal;
 
-import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.io.IOException;
 import java.io.FileReader;
 
 /**
@@ -77,26 +82,62 @@ public class Toml
 	public static Object[] parseArray(String array) {
 		ArrayList<Object> list = new ArrayList<Object>();
 		Boolean inString = false;
+		int index = 0;
 
-		for(int i = 0; i < array.length(); i++) {
-			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
+		for(int i = 1; i < array.length(); i++) {
+			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
 			if(array.charAt(i) == '[') {
+				index = i;
 				int j = 1;
 
-				while(array.charAt(i++) != ']') {
+				while(array.charAt(i) != ']') {
+					if(array.charAt(i) == '"') {
+						inString = !inString;
+					} else if(array.charAt(i) == '[' && !inString) {
+						j++;
+					} else if(array.charAt(i) == ']' && !inString) {
+						j--;
+					}
+
+					i++;
+
+					if(j == 0) {
+						parseArray(array.substring(index, i + 1));
+					}
 				}
+			} else if(array.charAt(i) == ',' && !inString) {
+				list.add(parseValue(array.substring(index, i)));
+				index = i + 1;
+			} else if(i == array.length() - 2) {
+				list.add(parseValue(array.substring(index, i + 1)));
+			}
+
+			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
 		}
+
+		return list.toArray();
 	}
 
 	public static Object parseValue(String value) {
 		if(value.charAt(0) == '"') {
 			return value.substring(1, value.length() - 1);
+		} else if(value.contains(":") || value.contains("-") && value.charAt(0) != '-') {
+			if(value.contains("-") && !value.contains(":")) {
+				return LocalDate.parse(value);
+			} else if(value.contains(":") && !value.contains("-")) {
+				return LocalTime.parse(value);
+			} else if(value.substring(value.indexOf(":")).contains("-")) {
+				return OffsetDateTime.parse(value);
+			} else {
+				return LocalDateTime.parse(value);
+			}
 		} else if(value.charAt(0) == 't' || value.charAt(0) == 'f') {
 			return Boolean.parseBoolean(value);
 		} else if(value.charAt(0) == '[' || value.charAt(0) == '{') {
 			return parseArray(value);
 		} else {
-			return new BigDecimal(value);
+			System.out.println("!!! " + value);
+			return new BigDecimal(value.replaceAll("_", ""));
 		}
 	}
 
@@ -104,7 +145,6 @@ public class Toml
 	 * Parse the TOML string into a HashMap
 	 *
 	 * @param tomlString The TOML string to parse
-	 */
 	public HashMap<String, Object> parseToml(String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
@@ -128,6 +168,7 @@ public class Toml
 	
 		return table;
 	}
+	 */
 
 	static public void main(String[] args) {
 		try {
@@ -135,7 +176,15 @@ public class Toml
 
 			String line;
 			while((line = reader.readLine()) != null) {
-				System.out.println(Arrays.toString(tokenize(line)));
+				String[] result = tokenize(line);
+				if(result != null) {
+					if(result.length == 1) {
+						System.out.println(result[0]);
+					} else {
+						System.out.println(result[0] + ": " + parseValue(result[1]));
+						//System.out.println(Arrays.toString(tokenize(line)));
+					}
+				}
 			}
 		} catch(IOException e) {
 			e.printStackTrace();
