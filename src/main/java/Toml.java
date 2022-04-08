@@ -86,13 +86,15 @@ public class Toml
 
 		for(int i = 1; i < array.length(); i++) {
 			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
-
-			if(array.charAt(i) == '[') {
+			
+			if(array.charAt(i) == ' ' && !inString) {
+				index = i + 1;
+			} else if(array.charAt(i) == '[') {
 				index = i;
 				int j = 0;
 
 				while(true) {
-					if(array.charAt(i) == '"') {
+					if(array.charAt(i) == '"' && array.charAt(i - 1) != '\\') {
 						inString = !inString;
 					} else if(array.charAt(i) == '[' && !inString) {
 						j++;
@@ -100,33 +102,19 @@ public class Toml
 						j--;
 					}
 
-					/*
-					System.out.print(array.substring(0, i) + "|" + array.charAt(i) + "|" + array.substring(i + 1));
-					System.out.print(" && j: " + j);
-					System.out.print(" && i: " + i);
-					System.out.println(" && inString: " + inString);
-					*/
-
 					i++;
 
 					if(j == 0) {
-						System.out.println("Parsing: " + array.substring(index, i));
-						parseArray(array.substring(index, i + 1));
+						list.add(parseValue(array.substring(index, i)));
 						break;
 					}
 				}
 			} else if((array.charAt(i) == ',' || array.charAt(i) == ']') && !inString) {
-				System.out.println("Adding: " + array.substring(index, i));
 				list.add(parseValue(array.substring(index, i)));
-				index = array.charAt(i + 1) != ' ' ? i + 1 : i + 2;
-				i = array.charAt(i + 1) == ']' ? array.length() : i;
+				index = i + 1;
 			}
 
 			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
-
-			System.out.print(array.substring(0, i) + "|" + array.charAt(i) + "|" + array.substring(i + 1));
-			System.out.print(" && i: " + i);
-			System.out.println(" && inString: " + inString);
 		}
 
 		return list.toArray();
@@ -150,7 +138,6 @@ public class Toml
 		} else if(value.charAt(0) == '[' || value.charAt(0) == '{') {
 			return parseArray(value);
 		} else {
-			System.out.println("!!! " + value);
 			return new BigDecimal(value.replaceAll("_", ""));
 		}
 	}
@@ -202,9 +189,9 @@ public class Toml
 				}
 			}
 			*/
-			String test = "guh = [[\"a\", \"b\", \"c\"], [\"d\", \"e\", \"f\"]]";
+			String test = "guh = [1, 2, 3]";
 			System.out.println(Arrays.toString(tokenize(test)));
-			System.out.println(parseArray(tokenize(test)[1]));
+			System.out.println(parseValue(tokenize(test)[1]));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
