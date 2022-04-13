@@ -1,3 +1,4 @@
+import java.util.IllegalFormatException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Arrays;
@@ -170,8 +171,43 @@ public class Toml
 		return list.toArray();
 	}
 
+	public static String parseString(String string) {
+		StringBuilder sb = new StringBuilder();
+
+		for(int i = 0; i < string.length(); i++) {
+			if(string.charAt(i) == '\\') {
+				switch(string.charAt(++i)) {
+					case 'n':
+						sb.append('\n');
+						break;
+					case 't':
+						sb.append('\t');
+						break;
+					case 'r':
+						sb.append('\r');
+						break;
+					case '\\':
+						sb.append('\\');
+						break;
+					case 'u':
+						sb.append((char) Integer.parseInt(string.substring(i + 1, i + 5), 16));
+						i += 4;
+						break;
+					default:
+						System.err.println("Invalid escape sequence: " + "\\" + string.charAt(i + 1) + " at location " + i);
+				}
+			} else {
+				sb.append(string.charAt(i));
+			}
+		}
+
+		return sb.toString();
+	}
+			
 	public static Object parseValue(String value) {
 		if(value.charAt(0) == '"') {
+			return parseString(value.substring(1, value.length() - 1));
+		} else if(value.charAt(0) == '\'') {
 			return value.substring(1, value.length() - 1);
 		} else if(value.contains(":") || value.contains("-") && value.charAt(0) != '-') {
 			if(value.contains("-") && !value.contains(":")) {
@@ -197,7 +233,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
-	public HashMap<String, Object> parseToml(String tableName, String tomlString) {
+	public HashMap<String, Object> parseToml(String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
@@ -222,19 +258,22 @@ public class Toml
 			e.printStackTrace();
 		}
 	
-		table.put(tableName, table);
+		table.put(name, table);
 		return table;
 	}
 
 	static public void main(String[] args) {
 		try {
+			System.out.println("Name\tJos\u00E9\nLoc\tSF."); // "h\nh"
+			System.out.println(parseValue("\'Name\\tJos\\u00E9\\nLoc\\tSF.\'")); // "h\nh"
+			System.out.println(parseValue("\"Name\\tJos\\u00E9\\nLoc\\tSF.\"")); // "h\nh"
+			/*
 			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 
 			String line = "", file = "";
 			while((line = reader.readLine()) != null) { file += line + "\n"; }
 			Toml toml = new Toml("Guh");
-			System.out.println(toml.parseToml(toml.name, file));
-			/*
+			System.out.println(toml.parseToml(file));
 			System.out.println(toml.table.values());
 			System.out.println(toml.getString("name").toString());
 			System.out.println(toml.getString("server"));
