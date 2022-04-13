@@ -40,11 +40,61 @@ public class Toml
 		name = "";
 	}
 
+	/**
+	 * Toml constructor
+	 *
+	 * @param toml The TOML string to parse
+	 */
+	public Toml(String name) {
+		table = new HashMap<String, Object>();
+		name = name;
+	}
+
+	public Object get(String key) {
+		return table.get(key);
+	}
+
+	public String getString(String key) {
+		return (String) table.get(key);
+	}
+
+	public BigDecimal getNumber(String key) {
+		return (BigDecimal) table.get(key);
+	}
+
+	public LocalDateTime getDateTime(String key) {
+		return (LocalDateTime) table.get(key);
+	}
+
+	public LocalDate getDate(String key) {
+		return (LocalDate) table.get(key);
+	}
+
+	public LocalTime getTime(String key) {
+		return (LocalTime) table.get(key);
+	}
+
+	public OffsetDateTime getOffsetDateTime(String key) {
+		return (OffsetDateTime) table.get(key);
+	}
+
+	public Boolean getBoolean(String key) {
+		return (Boolean) table.get(key);
+	}
+
+	public Object[] getArray(String key) {
+		return (Object[]) table.get(key);
+	}
+
+	public HashMap<String, Object> getMap(String key) {
+		return (HashMap<String, Object>) table.get(key);
+	}
+
 	public static String[] tokenize(String line) {
 		String[] tokens = new String[] {"", ""};
 		int i = 0;
 
-		if(line == null || line.length() == 0) {
+		if(line == null || line.length() <= 1) {
 			return null;
 		}
 
@@ -146,7 +196,8 @@ public class Toml
 	 * Parse the TOML string into a HashMap
 	 *
 	 * @param tomlString The TOML string to parse
-	public HashMap<String, Object> parseToml(String tomlString) {
+	 */
+	public HashMap<String, Object> parseToml(String tableName, String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
@@ -154,10 +205,14 @@ public class Toml
 		String line;
 		try {
 			while((line = reader.readLine()) != null) {
-				String[] result = parseLine(line + '\n');
+				String[] result = tokenize(line);
 				if(result != null) {
 					if(result.length == 1) {
-						table.put(result[0], new HashMap<String, Object>());
+						if(table.get(result[0]) == null) {
+							table.put(result[0], new HashMap<String, Object>());
+						} else {
+							((HashMap<String, Object>) table.get(result[0])).put(result[0], parseValue(result[1]));
+						}
 					} else {
 						table.put(result[0], result[1]);
 					}
@@ -167,31 +222,36 @@ public class Toml
 			e.printStackTrace();
 		}
 	
+		table.put(tableName, table);
 		return table;
 	}
-	 */
 
 	static public void main(String[] args) {
 		try {
-			/*
 			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 
-			String line;
+			String line = "", file = "";
+			while((line = reader.readLine()) != null) { file += line + "\n"; }
+			Toml toml = new Toml("Guh");
+			System.out.println(toml.parseToml(toml.name, file));
+			/*
+			System.out.println(toml.table.values());
+			System.out.println(toml.getString("name").toString());
+			System.out.println(toml.getString("server"));
+
+			reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 			while((line = reader.readLine()) != null) {
-				String[] result = tokenize(line);
-				if(result != null) {
-					if(result.length == 1) {
-						System.out.println(result[0]);
-					} else {
-						System.out.println(result[0] + ": " + parseValue(result[1]));
-						//System.out.println(Arrays.toString(tokenize(line)));
-					}
+				if(tokenize(line) != null) {
+					System.out.println(toml.get(tokenize(line)[0]));
 				}
 			}
-			*/
-			String test = "guh = [1, 2, 3]";
+			//String test = "guh = [1, 2, 3]";
+			//String test = "guh = [[1, 2, 3], [4, 5, 6]]";
+			String test = "guh = [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [10, 11, 12]]]";
 			System.out.println(Arrays.toString(tokenize(test)));
 			System.out.println(parseValue(tokenize(test)[1]));
+			System.out.println(parseValue(tokenize(test)[1]));
+			*/
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
