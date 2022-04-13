@@ -1,12 +1,12 @@
-## TOML Library
-This TOML File Library is made to for users to import the library into their Java library into their Java enviroment.
+## TOML Library API
+This TOML File Library API is made available to users for the purpose of importing it into their Java enviroment.
 
-The primary purpose of this project is to make it possible for users of Java to work with TOML files and extract data from within them much easier.
+The primary purpose of this project is to make it possible for Java users to easily work with TOML files, extract data from within them, and add new data.
 
-A good show of this implementation functioning correctly will consist of a variety of tests that prove that the code and functions work properly and do what they are supposed to as well as test for edge cases that might break the library.
+A good show of this implementation functioning correctly will consist of a variety of tests using Apache Maven. These tests prove that the code and functions work properly and do what they are supposed to. Tests for edge cases that might break the library are also included.
 
 ## Motivation
-This project is to create a library that supports the use of TOML files in Java 1.8 and in helping retrieve data from the TOML file. Accessing data inside TOML files is often arduous, this library is made to be a solution to this.
+This project is to create a library that supports the use of TOML v1.0.0 (https://toml.io/en/) files in Java 1.8. Allowing users to seamlessly retrieve data from the TOML file with 'get' statements. Accessing data inside TOML files is often arduous, this library is made to be a solution to this. Furthermore, users will be able to simply add new data to their TOML file with 'set' statements. This will be similar to the way users can interact with JSON files. 
 
 ## Code style
 If you're using any code style like xo, standard etc. That will help others while contributing to your project. Ex. -
@@ -17,28 +17,30 @@ If you're using any code style like xo, standard etc. That will help others whil
 Include logo/demo screenshot etc.
 
 ## Tech/framework used
--Java
--Apache Maven
+-Java 1.8
+-Apache Maven 3.8.4
 
 ## Features
 The library consists of TOML Parser that:
 
--Get keys/values from a TOML object
+-Parses key/value pairs from a TOML object and stores them in HashMaps
 
--Output TOML data in various formats, such as a Hash Table, each data type defined in the TOML specification (DateTime, Array, String, Integer, etc.)
+-Output TOML data in various formats and data types defined in the TOML specifications (https://toml.io/en/v1.0.0)(DateTime, Array, String, Integer, etc.)
 
--Mutate the TOML object
+-Update the TOML file by adding objects and manipulating the HashMap key/value pairs as needed
 
--Outputting the TOML object as a file/stream/string
+-Output the TOML object as a file/stream/string
 
 ## Code Example
 Show what the library does as concisely as possible, developers should be able to figure out **how** your project solves their problem by looking at the code example. Make sure the API you are showing off is obvious, and that your code is short and concise.
 
 ## Installation
-Provide step by step series of examples and explanations about how to get a development env running.
+Import SE2Toml.java library at the top of your Java file that you wish to use the library functionalities in.
 
 ## Tests
-Describe and show how to run the tests with code examples.
+Tests are stored in the src > test > java > TomlTest.java file of the Maven project folder. All tests adhere to the specifications of JUnit and are run through Apache Maven's mvn test command.
+For example: when in the SE2 folder in the terminal, run **mvn test**
+Also, navigate to the TomlTest.java folder to see the things that are being test and how they are relevant to the project.
 
 ## How to use?
 If people like your project they’ll want to learn how they can use it. To do so include step by step guide to use your project.
