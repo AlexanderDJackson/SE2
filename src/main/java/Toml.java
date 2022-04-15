@@ -242,6 +242,82 @@ public class Toml
 		}
 	}
 
+	public String preProcess(String tomlString) {
+		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+		
+		String line = "";
+		String newLine = "";
+		try {
+			while((line = reader.readLine()) != null) {
+				newLine = line;
+				//System.out.println(newLine);
+				// Line consists of key/value pair
+				if(newLine.contains("=")) {
+					// Line has array bracket
+					if(newLine.contains("[") && 
+					// Line is not string
+					(newLine.indexOf("\"") < 0 || newLine.indexOf("[") < newLine.indexOf("\"")) &&
+					// Line is not string literal
+					(newLine.indexOf("'") < 0 || newLine.indexOf("[") < newLine.indexOf("'"))) {
+					
+						//System.out.println("In if statement...");
+						int brack = 1;
+						
+						// Line doesn't end with closing bracket and unmatched opening brackets remain
+						while(!newLine.endsWith("]") && brack != 0) {
+							String temp = reader.readLine();
+							//System.out.println(temp);
+							// Loop through temp String
+							for(int i = 0; i < temp.length() - 1; i++)
+							{
+								// Increment i if opening bracket
+								if(temp.charAt(i) == '[') {
+									brack++;
+								}
+								// Decrement i if closing bracket
+								if(temp.charAt(i) == ']') {
+									brack--;	
+								}
+							}
+							// Append temp to line
+							newLine += temp;
+						}
+					} else if(newLine.contains("\"\"\"") && // Line has string quote
+						// Line is not an array
+						(newLine.indexOf("[") < 0 || newLine.indexOf("\"") < newLine.indexOf("[")) &&
+						// Line is not a string literal
+						(newLine.indexOf("'") < 0 || newLine.indexOf("\"") < newLine.indexOf("'"))) {
+						
+						while(!newLine.endsWith("\"\"\"")) {
+							// Append next line to String line
+							newLine += reader.readLine();
+						}
+
+					} else if(newLine.contains("'''") && // Line has string literal single quote
+						// Line is not an array
+						(newLine.indexOf("[") < 0 || newLine.indexOf("'") < newLine.indexOf("[")) &&
+						// Line is not a string
+						(newLine.indexOf("\"") < 0 || newLine.indexOf("'") < newLine.indexOf("\""))) {
+
+						while(!newLine.endsWith("'''")) {
+							// Append next line to String line
+							newLine += reader.readLine();
+						}
+					}
+				}
+				//System.out.println("Out of if statement...");
+				//System.out.println(newLine);
+			}
+			//System.out.println("Out of while loop...");
+			//System.out.println(newLine);
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+		//System.out.println("Returning...");
+		//System.out.println(newLine);
+		return newLine;
+	}
+
 	/**
 	 * Return the int associated with the given key
 	 * 

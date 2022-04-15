@@ -448,6 +448,66 @@ public class TomlTest
         assertTrue(toml.getString("array").equals("[ 9, [8, 7], 6 ]"));
     }
 
+    @Test
+    public void testPreProcess() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("array = [ 9,\n [8, 7],\n 6 ]").equals("array = [ 9, [8, 7], 6 ]"));
+    }
+
+    @Test
+    public void testPreProcess2() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("string = \"\"\"Hi\n how\n are\n you\"\"\"").equals("string = \"\"\"Hi how are you\"\"\""));
+    }
+
+    @Test
+    public void testPreProcess3() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("stringLiteral = '''Hi\n how\n are\n you'''").equals("stringLiteral = '''Hi how are you'''"));
+    }
+
+    @Test
+    public void testPreProcess4() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("array = [ \"\"\"9,\n [8, 7],\n 6\"\"\" ]").equals("array = [ \"\"\"9, [8, 7], 6\"\"\" ]"));
+    }
+
+    @Test
+    public void testPreProcess5() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("string = \"\"\"'''Hi\n how\n are\n you'''\"\"\"").equals("string = \"\"\"'''Hi how are you'''\"\"\""));
+    }
+
+    @Test
+    public void testPreProcess6() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("stringLiteral = '''\"\"\"Hi\n how\n are\n you\"\"\"'''").equals("stringLiteral = '''\"\"\"Hi how are you\"\"\"'''"));
+    }
+
+    @Test
+    public void testPreProcess7() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("array = [ '''9,\n [8, 7],\n 6''' ]").equals("array = [ '''9, [8, 7], 6''' ]"));
+    }
+
+    @Test
+    public void testPreProcess8() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("string = \"\"\"I'm\n a\n little\n teapot\"\"\"").equals("string = \"\"\"I'm a little teapot\"\"\""));
+    }
+
+    @Test
+    public void testPreProcess9() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("stringLiteral = '''I'm\n a\n little\n teapot'''").equals("stringLiteral = '''I'm a little teapot'''"));
+    }
+
+    @Test
+    public void testPreProcess10() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("stringLiteral = '''Hi\n \thow\n are\n you'''").equals("stringLiteral = '''Hi \thow are you'''"));
+    }
+
     /* @Test
     public void testArray1() {
         Toml toml = new Toml();
