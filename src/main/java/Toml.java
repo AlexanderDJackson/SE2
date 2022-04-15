@@ -171,6 +171,10 @@ public class Toml
 		return list.toArray();
 	}
 
+	public void add(HashMap<String, Object> map) {
+		table.putAll(map);
+	}
+
 	public static String parseString(String string) {
 		StringBuilder sb = new StringBuilder();
 
@@ -185,6 +189,15 @@ public class Toml
 						break;
 					case 'r':
 						sb.append('\r');
+						break;
+					case 'f':
+						sb.append('\f');
+						break;
+					case '\'':
+						sb.append('\'');
+						break;
+					case '\"':
+						sb.append('\"');
 						break;
 					case '\\':
 						sb.append('\\');
@@ -233,24 +246,48 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
-	public HashMap<String, Object> parseToml(String tomlString) {
+	public static HashMap<String, Object> parseToml(String tomlString) {
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
-
 		String line;
+
 		try {
 			while((line = reader.readLine()) != null) {
 				String[] result = tokenize(line);
 				if(result != null) {
 					if(result.length == 1) {
-						if(table.get(result[0]) == null) {
-							table.put(result[0], new HashMap<String, Object>());
-						} else {
-							((HashMap<String, Object>) table.get(result[0])).put(result[0], parseValue(result[1]));
+						HashMap<String, Object> subTable = new HashMap<String, Object>();
+
+						String recurse = "";
+						
+						while(true) {
+							reader.mark(1024);
+							if((line = reader.readLine()) == null) {
+								break;
+							}
+
+							String[] subResult = tokenize(line);
+							if(subResult != null && subResult.length < 2) {
+								reader.reset();
+								break;
+							} else {
+								recurse += line + "\n";
+							}
 						}
+
+						subTable = parseToml(recurse);
+
+						if(((HashMap<String, Object>) table.get(result[0])) == null) {
+							System.out.println("Recursing for: \n" + recurse);
+							subTable.put(result[0], parseToml(recurse));
+						} else {
+							System.out.println("Recursing for: \n" + recurse);
+							((HashMap<String, Object>) table.get(result[0])).put(result[0], parseToml(recurse));
+						}
+
 					} else {
-						table.put(result[0], result[1]);
+						table.put(result[0], parseValue(result[1]));
 					}
 				}
 			}
@@ -258,26 +295,26 @@ public class Toml
 			e.printStackTrace();
 		}
 	
-		table.put(name, table);
 		return table;
 	}
 
 	static public void main(String[] args) {
 		try {
-			System.out.println("Name\tJos\u00E9\nLoc\tSF."); // "h\nh"
-			System.out.println(parseValue("\'Name\\tJos\\u00E9\\nLoc\\tSF.\'")); // "h\nh"
-			System.out.println(parseValue("\"Name\\tJos\\u00E9\\nLoc\\tSF.\"")); // "h\nh"
-			/*
 			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 
 			String line = "", file = "";
 			while((line = reader.readLine()) != null) { file += line + "\n"; }
 			Toml toml = new Toml("Guh");
-			System.out.println(toml.parseToml(file));
-			System.out.println(toml.table.values());
-			System.out.println(toml.getString("name").toString());
+			toml.add(parseToml(file));
+			System.out.println(parseToml(file));
+			System.out.println(toml.table.toString());
+			System.out.println(toml.getString("name"));
 			System.out.println(toml.getString("server"));
 
+			/*
+			System.out.println("Name\t\"Jos\"\u00E9\nLoc\tSF."); // "h\nh"
+			System.out.println(parseValue("\'Name\\t\\\"Jos\\\"\\u00E9\\nLoc\\tSF.\'")); // "h\nh"
+			System.out.println(parseValue("\"Name\\t\\\"Jos\\\"\\u00E9\\nLoc\\tSF.\"")); // "h\nh"
 			reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
 			while((line = reader.readLine()) != null) {
 				if(tokenize(line) != null) {
