@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -243,28 +244,39 @@ public class Toml
 	}
 
 	public String preProcess(String tomlString) {
+		/* String result = tomlString.replaceAll("\n\\s*#\\s*\\w*", "");
+		result.replaceAll("\\n\\s*", "\n");
+		System.out.println(result);
+		return result; */
+		
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		
 		String line = "";
-		String newLine = "";
+		StringBuilder result = new StringBuilder();
 		try {
 			while((line = reader.readLine()) != null) {
-				newLine = line;
-				//System.out.println(newLine);
+				System.out.println("Initial:" + line);
+				System.out.println("Replacing with:" + line.replaceAll("^\\s*", "").replaceAll("^#(\\s*\\w*)*", ""));
+				result.append(line.replaceAll("^\\s*", "").replaceAll("^#(\\s*\\w*)*", ""));
+				if(line != "") {
+					result.append("\n");
+				}
+				/* System.out.println(line);
+
 				// Line consists of key/value pair
-				if(newLine.contains("=")) {
+				if(line.contains("=")) {
 					// Line has array bracket
-					if(newLine.contains("[") && 
+					if(line.contains("[") && 
 					// Line is not string
-					(newLine.indexOf("\"") < 0 || newLine.indexOf("[") < newLine.indexOf("\"")) &&
+					(line.indexOf("\"") < 0 || line.indexOf("[") < line.indexOf("\"")) &&
 					// Line is not string literal
-					(newLine.indexOf("'") < 0 || newLine.indexOf("[") < newLine.indexOf("'"))) {
+					(line.indexOf("'") < 0 || line.indexOf("[") < line.indexOf("'"))) {
 					
 						//System.out.println("In if statement...");
 						int brack = 1;
 						
 						// Line doesn't end with closing bracket and unmatched opening brackets remain
-						while(!newLine.endsWith("]") && brack != 0) {
+						while(!line.endsWith("]") && brack != 0) {
 							String temp = reader.readLine();
 							//System.out.println(temp);
 							// Loop through temp String
@@ -280,42 +292,48 @@ public class Toml
 								}
 							}
 							// Append temp to line
-							newLine += temp;
+							line += temp;
+							System.out.println(line);
 						}
-					} else if(newLine.contains("\"\"\"") && // Line has string quote
+					} else if(line.contains("\"\"\"") && // Line has string quote
 						// Line is not an array
-						(newLine.indexOf("[") < 0 || newLine.indexOf("\"") < newLine.indexOf("[")) &&
+						(line.indexOf("[") < 0 || line.indexOf("\"") < line.indexOf("[")) &&
 						// Line is not a string literal
-						(newLine.indexOf("'") < 0 || newLine.indexOf("\"") < newLine.indexOf("'"))) {
+						(line.indexOf("'") < 0 || line.indexOf("\"") < line.indexOf("'"))) {
 						
-						while(!newLine.endsWith("\"\"\"")) {
+						while(!line.endsWith("\"\"\"")) {
 							// Append next line to String line
-							newLine += reader.readLine();
+							line += reader.readLine();
+							System.out.println(line);
 						}
 
-					} else if(newLine.contains("'''") && // Line has string literal single quote
+					} else if(line.contains("'''") && // Line has string literal single quote
 						// Line is not an array
-						(newLine.indexOf("[") < 0 || newLine.indexOf("'") < newLine.indexOf("[")) &&
+						(line.indexOf("[") < 0 || line.indexOf("'") < line.indexOf("[")) &&
 						// Line is not a string
-						(newLine.indexOf("\"") < 0 || newLine.indexOf("'") < newLine.indexOf("\""))) {
+						(line.indexOf("\"") < 0 || line.indexOf("'") < line.indexOf("\""))) {
 
-						while(!newLine.endsWith("'''")) {
+						while(!line.endsWith("'''")) {
 							// Append next line to String line
-							newLine += reader.readLine();
+							line += reader.readLine();
+							System.out.println(line);
 						}
 					}
 				}
 				//System.out.println("Out of if statement...");
-				//System.out.println(newLine);
+				System.out.println(line);
+				//if(line != "" || !(line.startsWith(""))) {
+					result += line;
+				//} */
 			}
 			//System.out.println("Out of while loop...");
-			//System.out.println(newLine);
+			//System.out.println(line);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
 		//System.out.println("Returning...");
-		//System.out.println(newLine);
-		return newLine;
+		System.out.println("Final:" + result.toString());
+		return result.toString();
 	}
 
 	/**

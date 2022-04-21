@@ -449,6 +449,24 @@ public class TomlTest
     }
 
     @Test
+    public void testPP() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("int = 1\n# guh\nstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
+    }
+
+    @Test
+    public void testPPP() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("int = 1\nstring = \"# guh hi\"").equals("int = 1\nstring = \"# guh hi\""));
+    }
+
+    @Test
+    public void testPPPP() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess("int = 1\n\n\tstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
+    }
+
+    /* @Test
     public void testPreProcess() {
         Toml toml = new Toml();
         assertTrue(toml.preProcess("array = [ 9,\n [8, 7],\n 6 ]").equals("array = [ 9, [8, 7], 6 ]"));
@@ -506,7 +524,13 @@ public class TomlTest
     public void testPreProcess10() {
         Toml toml = new Toml();
         assertTrue(toml.preProcess("stringLiteral = '''Hi\n \thow\n are\n you'''").equals("stringLiteral = '''Hi \thow are you'''"));
-    }
+    } */
+
+    /* @Test
+    public void testProcess11() {
+        Toml toml = new Toml();
+        assertTrue(toml.preProcess(" stringLiteral = '''Hi\n \thow\n are\n you''' ").equals("stringLiteral = '''Hi \thow are you'''"));
+    } */
 
     /* @Test
     public void testArray1() {
