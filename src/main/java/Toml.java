@@ -96,14 +96,14 @@ public class Toml
 		int i = 0;
 
 		if(line == null || line.length() <= 1) {
-			return null;
+			return new String[] { tokens[0] };
 		}
 
 		// Find first non-whitespace character
 		while(Character.isWhitespace(line.charAt(i))) { i++; }
 
 		if(line.charAt(i) == '#') {
-			return null;
+			return new String[] { tokens[0] };
 		}
 
 		if(line.charAt(i) == '[') {
@@ -111,7 +111,7 @@ public class Toml
 				tokens[0] += line.charAt(i);
 			}
 
-			return new String[] {tokens[0]};
+			return new String[] { tokens[0] };
 		} else {
 			// Read the key
 			while(!(line.charAt(i) == '=') && !(line.charAt(i) == ' ')) {
@@ -172,7 +172,7 @@ public class Toml
 	}
 
 	public void add(HashMap<String, Object> map) {
-		table.putAll(map);
+		if(map != null) { table.putAll(map); }
 	}
 
 	public static String parseString(String string) {
@@ -255,8 +255,10 @@ public class Toml
 		try {
 			while((line = reader.readLine()) != null) {
 				String[] result = tokenize(line);
-				if(result != null) {
+				if(result[0] != "") {
+					System.out.println(Arrays.toString(result) + " " + result.length);
 					if(result.length == 1) {
+						System.out.println("Found table: " + result[0]);
 						HashMap<String, Object> subTable = new HashMap<String, Object>();
 
 						String recurse = "";
@@ -276,6 +278,7 @@ public class Toml
 							}
 						}
 
+						System.out.println("Recursing for: " + tomlString);
 						subTable = parseToml(recurse);
 
 						if(((HashMap<String, Object>) table.get(result[0])) == null) {
@@ -289,6 +292,8 @@ public class Toml
 					} else {
 						table.put(result[0], parseValue(result[1]));
 					}
+				} else {
+					return null;
 				}
 			}
 		} catch(IOException e) {
