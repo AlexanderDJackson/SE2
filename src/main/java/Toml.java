@@ -249,18 +249,29 @@ public class Toml
 		System.out.println(result);
 		return result; */
 		
-		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+		//BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		
-		String line = "";
+		//String line = "";
 		StringBuilder result = new StringBuilder();
-		try {
-			while((line = reader.readLine()) != null) {
-				System.out.println("Initial:" + line);
-				System.out.println("Replacing with:" + line.replaceAll("^\\s*", "").replaceAll("^#(\\s*\\w*)*", ""));
-				result.append(line.replaceAll("^\\s*", "").replaceAll("^#(\\s*\\w*)*", ""));
-				if(line != "") {
+
+		System.out.println("Initial:" + tomlString);
+		//System.out.println("Replacing with:" + tomlString.replaceAll("(?m)^[ \t]*\r?\n", "").replaceAll("^#(\\s*\\w*)*", ""));
+		System.out.println("Removing Comments: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", ""));
+		System.out.println("Removing Blank Lines: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
+																.replaceAll("(?m)^[ \t]*\r?\n", ""));
+		System.out.println("Removing Leading Whitespace: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
+																	   .replaceAll("(?m)^[ \t]*\r?\n", "")
+																	   .replaceAll("(?m)^[ \t]+", ""));
+		result.append(tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
+								.replaceAll("(?m)^[ \t]*\r?\n", "")
+								.replaceAll("(?m)^[ \t]+", ""));
+
+		//try {
+			//while((line = reader.readLine()) != null) {
+				
+				/* if(line != "") {
 					result.append("\n");
-				}
+				} */
 				/* System.out.println(line);
 
 				// Line consists of key/value pair
@@ -325,12 +336,12 @@ public class Toml
 				//if(line != "" || !(line.startsWith(""))) {
 					result += line;
 				//} */
-			}
+			//}
 			//System.out.println("Out of while loop...");
 			//System.out.println(line);
-		} catch(IOException e) {
-			e.printStackTrace();
-		}
+		//} catch(IOException e) {
+		//	e.printStackTrace();
+		//}
 		//System.out.println("Returning...");
 		System.out.println("Final:" + result.toString());
 		return result.toString();
