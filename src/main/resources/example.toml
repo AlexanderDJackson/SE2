@@ -31,3 +31,26 @@ hosts = [
   "alpha",
   "omega"
 ]
+
+# buh tuh muh guh
+guh = """
+buh tuh
+muh guh
+"""
+
+# buh tuh muh guh
+buh = """\
+  buh tuh \
+  muh guh \
+  """
+
+# The first newline is
+# trimmed in raw strings.
+#   All other whitespace
+#   is preserved.
+tuh = '''
+The first newline is
+trimmed in raw strings.
+  All other whitespace
+  is preserved.
+'''

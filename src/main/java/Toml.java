@@ -257,29 +257,41 @@ public class Toml
 		return tomlString.replaceAll("(?m)^[ \t]*\r?\n", "");
 	}
 
+	public static String collapseStrings(String tomlString) {
+		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+	}
+
 	public static String preProcess(String tomlString) {
-		/* String result = tomlString.replaceAll("\n\\s*#\\s*\\w*", "");
-		result.replaceAll("\\n\\s*", "\n");
-		System.out.println(result);
-		return result; */
-		
 		StringJoiner result = new StringJoiner("\n");
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
 
 			String line = "";
-
+			int counter = 0;
 			Boolean inString = false, appended = false;
 
 			while((line = reader.readLine()) != null) {
-				for(int i = 0; i < line.length() - 1; i++) {
+				for(int i = 0; i < line.length(); i++) {
+					/*
+					System.out.println(line + ": " + i + ": " + inString);
+					for(int j = 0; j < i; j ++) { System.out.print(" "); }
+					System.out.println("^");
+					*/
 					if(line.charAt(i) == '"') {
 						inString = !inString;
+					} else if(!inString) {
+						if(line.charAt(i) == '#') {
+							result.add(line.substring(0, i));
+							appended = true;
+						} else if(line.charAt(i) == '[') {
+							counter ++;
+						} else if(line.charAt(i) == ']') {
+							counter --;
+						}
 					}
 
-					if(!inString && line.charAt(i) == '#') {
-						result.add(line.substring(0, i));
-						appended = true;
+					if(i == line.length() - 1 && counter != 0) {
+						line += reader.readLine();
 					}
 				}
 
