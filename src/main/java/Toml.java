@@ -346,7 +346,6 @@ public class Toml
 			ex.printStackTrace();
 		}
 
-		//return result.toString().replaceAll("\\\\s*", "");
 		return result.toString();
 	}
 
@@ -364,11 +363,6 @@ public class Toml
 
 			while((line = reader.readLine()) != null) {
 				for(int i = 0; i < line.length(); i++) {
-					/*
-					System.out.println(line + ": " + i + ": " + inString);
-					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^");
-					*/
 					if(line.charAt(i) == '"') {
 						inString = !inString;
 					} else if(!inString) {
@@ -398,84 +392,6 @@ public class Toml
 		}
 
 		return result.toString();
-		
-		//try {
-			//while((line = reader.readLine()) != null) {
-				
-				/* if(line != "") {
-					result.append("\n");
-				} */
-				/* System.out.println(line);
-
-				// Line consists of key/value pair
-				if(line.contains("=")) {
-					// Line has array bracket
-					if(line.contains("[") && 
-					// Line is not string
-					(line.indexOf("\"") < 0 || line.indexOf("[") < line.indexOf("\"")) &&
-					// Line is not string literal
-					(line.indexOf("'") < 0 || line.indexOf("[") < line.indexOf("'"))) {
-					
-						//System.out.println("In if statement...");
-						int brack = 1;
-						
-						// Line doesn't end with closing bracket and unmatched opening brackets remain
-						while(!line.endsWith("]") && brack != 0) {
-							String temp = reader.readLine();
-							//System.out.println(temp);
-							// Loop through temp String
-							for(int i = 0; i < temp.length() - 1; i++)
-							{
-								// Increment i if opening bracket
-								if(temp.charAt(i) == '[') {
-									brack++;
-								}
-								// Decrement i if closing bracket
-								if(temp.charAt(i) == ']') {
-									brack--;	
-								}
-							}
-							// Append temp to line
-							line += temp;
-							System.out.println(line);
-						}
-					} else if(line.contains("\"\"\"") && // Line has string quote
-						// Line is not an array
-						(line.indexOf("[") < 0 || line.indexOf("\"") < line.indexOf("[")) &&
-						// Line is not a string literal
-						(line.indexOf("'") < 0 || line.indexOf("\"") < line.indexOf("'"))) {
-						
-						while(!line.endsWith("\"\"\"")) {
-							// Append next line to String line
-							line += reader.readLine();
-							System.out.println(line);
-						}
-
-					} else if(line.contains("'''") && // Line has string literal single quote
-						// Line is not an array
-						(line.indexOf("[") < 0 || line.indexOf("'") < line.indexOf("[")) &&
-						// Line is not a string
-						(line.indexOf("\"") < 0 || line.indexOf("'") < line.indexOf("\""))) {
-
-						while(!line.endsWith("'''")) {
-							// Append next line to String line
-							line += reader.readLine();
-							System.out.println(line);
-						}
-					}
-				}
-				//System.out.println("Out of if statement...");
-				System.out.println(line);
-				//if(line != "" || !(line.startsWith(""))) {
-					result += line;
-				//} */
-			//}
-			//System.out.println("Out of while loop...");
-			//System.out.println(line);
-		//} catch(IOException e) {
-		//	e.printStackTrace();
-		//}
-		//System.out.println("Returning...");
 	}
 
 	public static void main(String args[]) {
