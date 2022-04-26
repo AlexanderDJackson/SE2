@@ -34,14 +34,14 @@ hosts = [
 
 # buh tuh muh guh
 guh = """
-buh tuh
+buh tuh 
 muh guh
 """
 
 # buh tuh muh guh
 buh = """\
   buh tuh \
-  muh guh \
+  muh guh\
   """
 
 # The first newline is

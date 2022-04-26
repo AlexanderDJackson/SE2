@@ -257,13 +257,105 @@ public class Toml
 		return tomlString.replaceAll("(?m)^[ \t]*\r?\n", "");
 	}
 
+	public static String collapseLitStrings(String tomlString) {
+        BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+        StringJoiner result = new StringJoiner("\n");
+        String line = "";
+        boolean inLitStr = false;
+
+        try {
+            while((line = reader.readLine()) != null) {
+                for(int i = 0; i < line.length(); i++) {
+					System.out.println(line + ": " + i + ": " + inLitStr);
+					for(int j = 0; j < i; j ++) { System.out.print(" "); }
+					System.out.println("^");
+
+                    if(line.charAt(i) == '\'' && i + 2 < line.length()) {
+                        if(line.charAt(i + 1) == '\'' && line.charAt(i + 2) == '\'') {
+                            if(!inLitStr) {
+                                inLitStr = !inLitStr;
+								line = line.substring(0, i) + line.substring(i + 2);    
+
+                                if(!line.endsWith("'''")) {
+                                    line += reader.readLine();
+                                }
+                            } else {
+                                inLitStr = !inLitStr;
+                                line = line.substring(0, i) + line.substring(i + 2);
+                                break;
+                            }
+                        }
+                    } else if (i == line.length() - 1 && inLitStr) {
+                        line += "\\n" + reader.readLine();
+                    }
+                }
+
+                result.add(line);
+            }
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+
+        return result.toString();
+    }
+
 	public static String collapseStrings(String tomlString) {
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+		StringJoiner result = new StringJoiner("\n");
+		String line = "";
+		Boolean inString = false;
+
+		try {
+			while((line = reader.readLine()) != null) {
+				for(int i = 0; i < line.length(); i ++) {
+					System.out.println(line + ": " + i + ": " + inString);
+					for(int j = 0; j < i; j ++) { System.out.print(" "); }
+					System.out.println("^");
+					if(line.charAt(i) == '"' && i + 2 < line.length()) {
+						if(line.charAt(i + 1) == '"' && line.charAt(i + 2) == '"') {
+							if(!inString) {
+								inString = !inString;
+								line = line.substring(0, i) + line.substring(i + 2);
+
+								if(line.endsWith("\\")) {
+									line = line.substring(0, line.length() - 1);
+									line += reader.readLine().replaceAll("^\\s*", "");
+								} else {
+									line += reader.readLine();
+								}
+							} else {
+								inString = !inString;
+								line = line.substring(0, i) + line.substring(i + 2);
+								break;
+							}
+						}
+					} else if(i == line.length() - 1 && inString) {
+						if(line.endsWith("\\")) {
+							line = line.substring(0, line.length() - 1);
+							line += reader.readLine().replaceAll("^\\s*", "");
+							i --;
+						} else {
+							line += reader.readLine();
+						}
+					}
+				}
+
+				result.add(line);
+			}
+		} catch(IOException ex) {
+			ex.printStackTrace();
+		}
+
+		//return result.toString().replaceAll("\\\\s*", "");
+		return result.toString();
 	}
 
 	public static String preProcess(String tomlString) {
 		StringJoiner result = new StringJoiner("\n");
 		try {
+			tomlString = collapseStrings(tomlString);
+			tomlString = collapseLitStrings(tomlString);
+			System.out.println(tomlString);
 			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
 
 			String line = "";
