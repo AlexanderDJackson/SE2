@@ -8,13 +8,23 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Unit test for simple App.
+ *  Unit testing for TOML (Tom's Obvious, Minimal Language) Java Implementation
+ * 
+ *	Authors: 	Brett Hammit (bah20a@acu.edu)
+ *			 	Alex Jackson (asj18a@acu.edu)
+ *			 	Justin Raitz (jmr18c@acu.edu)
+ *	Start Date:	03/08/22
+ *	Due Date:	04/27/22
+ *	Class:		CS375.01
+ *
+ *	Compile: 	Locate folder with maven pom.xml from command prompt
+ *				Run %mvn compile
+ *	Test:		%mvn test
+ *  Clean:      %mvn clean
+ *	Execute:	%java -cp target/classes/ Toml (***Only useful if you add a main function to Toml.java)
  */
 public class TomlTest 
 {
-    /**
-     * Rigorous Test :-)
-     */
     Toml toml;
 
     @Before
@@ -22,11 +32,14 @@ public class TomlTest
         toml = new Toml();
     }
 
-    /* @Test
+    /**
+     * Rigorous Test :-)
+     */
+    @Test
     public void shouldAnswerWithTrue()
     {
         assertTrue( true );
-    } */
+    }
 
     @Test
     public void testComment() {
@@ -449,43 +462,43 @@ public class TomlTest
     }
 
     @Test
-    public void testPP() {
+    public void testPreProcess() {
         Toml toml = new Toml();
         assertTrue(toml.preProcess("int = 1\n# guh\nstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
     }
 
     @Test
-    public void testPPP() {
+    public void testPreProcess2() {
         Toml toml = new Toml();
         assertTrue(toml.preProcess("int = 1\nstring = \"# guh hi\"").equals("int = 1\nstring = \"# guh hi\""));
     }
 
     @Test
-    public void testPPPP() {
+    public void testPreProcess3() {
         Toml toml = new Toml();
         assertTrue(toml.preProcess("int = 1\n\n\tstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
     }
 
     @Test
-    public void testCLS() {
+    public void testCollapseStringLiteral() {
         Toml toml = new Toml();
         assertTrue(toml.collapseLitStrings("lines = '''\nThe first newline is\ntrimmed in raw strings.\nAll other whitespace\nis preserved.\n'''").equals("lines = 'The first newline is\\ntrimmed in raw strings.\\nAll other whitespace\\nis preserved.\\n'"));
     }
 
     @Test
-    public void testCLS2() {
+    public void testCollapseStringLiteral2() {
         Toml toml = new Toml();
         assertTrue(toml.collapseLitStrings("lines = '''\nThe first newline is\ntrimmed in raw strings.\n\tAll other whitespace\n\tis preserved.\n'''").equals("lines = 'The first newline is\\ntrimmed in raw strings.\\n\tAll other whitespace\\n\tis preserved.\\n'"));
     }
 
     @Test
-    public void testCLS3() {
+    public void testCollapseStringLiteral3() {
         Toml toml = new Toml();
         assertTrue(toml.collapseLitStrings("regex2 = '''I [dw]on't need \\d{2} apples'''").equals("regex2 = 'I [dw]on't need \\d{2} apples'"));
     }
 
     @Test
-    public void testCLS4() {
+    public void testCollapseStringLiteral4() {
         Toml toml = new Toml();
         assertTrue(toml.collapseLitStrings("re = '''\\t{2} apps is t[wo]o many'''").equals("re = '\\t{2} apps is t[wo]o many'"));
     }

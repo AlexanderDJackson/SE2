@@ -13,14 +13,25 @@ import java.util.stream.Collectors;
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
  *
- *	Class:	CS375.01	
- *
+ *	Authors: 	Brett Hammit (bah20a@acu.edu)
+ *			 	Alex Jackson (asj18a@acu.edu)
+ *			 	Justin Raitz (jmr18c@acu.edu)
  *	Start Date:	03/08/22
- *	Due Date:	04/21/22
+ *	Due Date:	04/27/22
+ *	Class:		CS375.01
  *
- *	Authors: Brett Hammit (bah20a@acu.edu)
- *			 Alex Jackson (asj18a@acu.edu)
- *			 Justin Raitz (jmr18c@acu.edu)
+ *	Compile: 	Locate folder with maven pom.xml from command prompt
+ *				Run %mvn compile
+ *	Test:		%mvn test
+ *	Clean:		%mvn clean
+ *	Execute:	%java -cp target/classes/ Toml (***Only useful if you add a main function)
+ *
+ *	Description: This java project allows Java users to import this library 
+ *				 and easily work with TOML files, extract data from within 
+ *				 them, and add new data. It parses whole TOML files and stores
+ *				 the key/value pairs and the table headers inside of hash map objects.
+ *				 Users can then use the get and set functionalities to extract and
+ *				 update the data in the TOML file.
  */
 
 /**
@@ -42,10 +53,16 @@ public class Toml
 		name = "";
 	}
 
+	/**
+	 * Parse an individual line of the TOML string
+	 *
+	 * @param line The line of string to parse
+	 */
 	public Object[] parseLine(String line) {
 		int i = 0;
 		Object[] result;
 
+		// Return null for null line
 		if(line == null) {
 			return null;
 		}
@@ -190,7 +207,7 @@ public class Toml
 		}
 
 	/**
-	 * Parse the TOML string into a HashMap
+	 * Parse the entire TOML string into a HashMap
 	 *
 	 * @param tomlString The TOML string to parse
 	 */
@@ -199,6 +216,7 @@ public class Toml
 
 		String line;
 		try {
+			// While there is a new line of the string to be read
 			while((line = reader.readLine()) != null) {
 				
 				// Line consists of key/value pair
@@ -245,18 +263,38 @@ public class Toml
 		}
 	}
 
+	/**
+	 * Remove all TOML accepted comments from a TOML string
+	 *
+	 * @param tomlString The TOML string to remove comments from
+	 */
 	public static String removeComments(String tomlString) {
 		return tomlString.replaceAll("(?m)^#.*$", "");
 	}
 
+	/**
+	 * Remove all leading whitespace from a TOML string
+	 *
+	 * @param tomlString The TOML string to remove leading whitespace from
+	 */
 	public static String removeLeadingWhitespace(String tomlString) {
 		return tomlString.replaceAll("(?m)^[ \t]+", "");
 	}
 
+	/**
+	 * Remove all blank lines from a TOML string
+	 *
+	 * @param tomlString The TOML string to remove blank lines from
+	 */
 	public static String removeBlankLines(String tomlString) {
 		return tomlString.replaceAll("(?m)^[ \t]*\r?\n", "");
 	}
 
+	/**
+	 * Collapse multiline string literals
+	 *
+	 * @param tomlString The TOML string to collapse multiline string literals in
+	 */
 	public static String collapseLitStrings(String tomlString) {
         BufferedReader reader = new BufferedReader(new StringReader(tomlString));
         StringJoiner result = new StringJoiner("\n");
@@ -264,41 +302,61 @@ public class Toml
         boolean inLitStr = false;
 
         try {
-            while((line = reader.readLine()) != null) {
-                for(int i = 0; i < line.length(); i++) {
-					System.out.println(line + ": " + i + ": " + inLitStr);
+            // While there is a new line of the string to be read
+			while((line = reader.readLine()) != null) {
+                
+				// Loop through each character of the line
+				for(int i = 0; i < line.length(); i++) {
+					/* System.out.println(line + ": " + i + ": " + inLitStr);
 					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^");
+					System.out.println("^"); */
 
+					// A single quote is found 3 charaters from the end of the line
                     if(line.charAt(i) == '\'' && i + 2 < line.length()) {
-                        if(line.charAt(i + 1) == '\'' && line.charAt(i + 2) == '\'') {
-                            if(!inLitStr) {
+						// The next 2 characters are also single quotes (''')
+						if(line.charAt(i + 1) == '\'' && line.charAt(i + 2) == '\'') {
+							// Not in literal string
+							if(!inLitStr) {
+								// Set bool to opposite
                                 inLitStr = !inLitStr;
+								// Remove extra single quotes using substring
 								line = line.substring(0, i) + line.substring(i + 2);    
 
-                                if(!line.endsWith("'''")) {
-                                    line += reader.readLine();
+                                // Line does not end with 3 single quotes
+								if(!line.endsWith("'''")) {
+                                    // Add next line to line string
+									line += reader.readLine();
                                 }
                             } else {
-                                inLitStr = !inLitStr;
-                                line = line.substring(0, i) + line.substring(i + 2);
-                                break;
+                                // Set bool to opposite
+								inLitStr = !inLitStr;
+                                // Remove extra single quotes using substring
+								line = line.substring(0, i) + line.substring(i + 2);
+                                // Exit for loop
+								break;
                             }
                         }
-                    } else if (i == line.length() - 1 && inLitStr) {
-                        line += "\\n" + reader.readLine();
+                    } else if (i == line.length() - 1 && inLitStr) { // At last character of line string and in literal string
+                        // Add escaped newline and next line to line string
+						line += "\\n" + reader.readLine();
                     }
                 }
-
+				// Add line string to result StringJoiner
                 result.add(line);
             }
-        } catch(IOException ex) {
+        } catch(IOException ex) { // Catch any exceptions and print them off the stack trace
             ex.printStackTrace();
         }
-
+		
+		// Return result StringJoiner cast to a string
         return result.toString();
     }
 
+	/**
+	 * Collapse multiline strings
+	 *
+	 * @param tomlString The TOML string to collapse multiline strings in
+	 */
 	public static String collapseStrings(String tomlString) {
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		StringJoiner result = new StringJoiner("\n");
@@ -306,91 +364,136 @@ public class Toml
 		Boolean inString = false;
 
 		try {
+			// While there is a new line of the string to be read
 			while((line = reader.readLine()) != null) {
+				
+				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i ++) {
-					System.out.println(line + ": " + i + ": " + inString);
+					/* System.out.println(line + ": " + i + ": " + inString);
 					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^");
+					System.out.println("^"); */
+
+					// A quote is found 3 charaters from the end of the line
 					if(line.charAt(i) == '"' && i + 2 < line.length()) {
+						// The next 2 characters are also single quotes (""")
 						if(line.charAt(i + 1) == '"' && line.charAt(i + 2) == '"') {
+							// Not in string
 							if(!inString) {
+								// Set bool to opposite
 								inString = !inString;
+								// Remove extra quotes using substring
 								line = line.substring(0, i) + line.substring(i + 2);
 
+								// Line ends with escaped backslash
 								if(line.endsWith("\\")) {
+									// Remove backslash
 									line = line.substring(0, line.length() - 1);
+									// Add next line to line string after removing leading whitespace 
 									line += reader.readLine().replaceAll("^\\s*", "");
 								} else {
+									// Add next line to line string
 									line += reader.readLine();
 								}
 							} else {
+								// Set bool to opposite
 								inString = !inString;
+								// Remove extra single quotes using substring
 								line = line.substring(0, i) + line.substring(i + 2);
+								// Exit for loop
 								break;
 							}
 						}
-					} else if(i == line.length() - 1 && inString) {
+					} else if(i == line.length() - 1 && inString) { // At last character of line string and in string
+						// Line ends with escaped backslash
 						if(line.endsWith("\\")) {
+							// Remove backslash
 							line = line.substring(0, line.length() - 1);
+							// Add next line to line string after removing leading whitespace
 							line += reader.readLine().replaceAll("^\\s*", "");
+							// Decrement i
 							i --;
 						} else {
+							// Add next line to line string
 							line += reader.readLine();
 						}
 					}
 				}
 
-				result.add(line);
-			}
-		} catch(IOException ex) {
-			ex.printStackTrace();
-		}
-
-		return result.toString();
+				// Add line string to result StringJoiner
+                result.add(line);
+            }
+        } catch(IOException ex) { // Catch any exceptions and print them off the stack trace
+            ex.printStackTrace();
+        }
+		
+		// Return result StringJoiner cast to a string
+        return result.toString();
 	}
 
+	/**
+	 * Clean up TOML file for easier parsing by removing uneccesary lines and whitespace
+	 *
+	 * @param tomlString The TOML string to collapse multiline string literals in
+	 */
 	public static String preProcess(String tomlString) {
 		StringJoiner result = new StringJoiner("\n");
 		try {
+			// Use collapse functions on tomlString
 			tomlString = collapseStrings(tomlString);
 			tomlString = collapseLitStrings(tomlString);
 			System.out.println(tomlString);
+			// Create BufferedReader that reads in tomlString with blank lines, comments, and leading whitespace removed
 			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
-
 			String line = "";
 			int counter = 0;
 			Boolean inString = false, appended = false;
 
+			// While there is a new line of the string to be read
 			while((line = reader.readLine()) != null) {
+				
+				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i++) {
+					// Character is quote
 					if(line.charAt(i) == '"') {
+						//set bool to opposite
 						inString = !inString;
-					} else if(!inString) {
+					} else if(!inString) { // Not in string
+						// Character is comment symbol (#)
 						if(line.charAt(i) == '#') {
+							// Add everything in line string before # to result StringJoiner
 							result.add(line.substring(0, i));
+							// Set bool to true
 							appended = true;
-						} else if(line.charAt(i) == '[') {
+						} else if(line.charAt(i) == '[') { // Character is open bracket ([)
+							// Increment counter
 							counter ++;
-						} else if(line.charAt(i) == ']') {
+						} else if(line.charAt(i) == ']') { // Character is closed bracket (])
+							// Decrement counter
 							counter --;
 						}
 					}
 
+					// At last character of line string and counter does not  equal 0
 					if(i == line.length() - 1 && counter != 0) {
+						// Add next line to line string
 						line += reader.readLine();
 					}
 				}
 
+				// Appended bool is false
 				if(!appended) {
+					// Add line string to result StringJoiner
 					result.add(line);
 				}
 
+				// Set bool to false
 				appended = false;
 			}
-		} catch(IOException e) {
+		} catch(IOException e) { // Catch any exceptions and print them off the stack trace
 			e.printStackTrace();
 		}
 
+		// Return result StringJoiner cast to a string
 		return result.toString();
 	}
 
