@@ -466,6 +466,30 @@ public class TomlTest
         assertTrue(toml.preProcess("int = 1\n\n\tstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
     }
 
+    @Test
+    public void testCLS() {
+        Toml toml = new Toml();
+        assertTrue(toml.collapseLitStrings("lines = '''\nThe first newline is\ntrimmed in raw strings.\nAll other whitespace\nis preserved.\n'''").equals("lines = 'The first newline is\\ntrimmed in raw strings.\\nAll other whitespace\\nis preserved.\\n'"));
+    }
+
+    @Test
+    public void testCLS2() {
+        Toml toml = new Toml();
+        assertTrue(toml.collapseLitStrings("lines = '''\nThe first newline is\ntrimmed in raw strings.\n\tAll other whitespace\n\tis preserved.\n'''").equals("lines = 'The first newline is\\ntrimmed in raw strings.\\n\tAll other whitespace\\n\tis preserved.\\n'"));
+    }
+
+    @Test
+    public void testCLS3() {
+        Toml toml = new Toml();
+        assertTrue(toml.collapseLitStrings("regex2 = '''I [dw]on't need \\d{2} apples'''").equals("regex2 = 'I [dw]on't need \\d{2} apples'"));
+    }
+
+    @Test
+    public void testCLS4() {
+        Toml toml = new Toml();
+        assertTrue(toml.collapseLitStrings("re = '''\\t{2} apps is t[wo]o many'''").equals("re = '\\t{2} apps is t[wo]o many'"));
+    }
+    
     /* @Test
     public void testPreProcess() {
         Toml toml = new Toml();
