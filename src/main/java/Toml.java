@@ -6,7 +6,9 @@ import java.time.LocalTime;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
-//import java.util.Stack;
+import java.util.StringJoiner;
+import java.io.FileReader;
+import java.util.stream.Collectors;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -243,29 +245,56 @@ public class Toml
 		}
 	}
 
-	public String preProcess(String tomlString) {
+	public static String removeComments(String tomlString) {
+		return tomlString.replaceAll("(?m)^#.*$", "");
+	}
+
+	public static String removeLeadingWhitespace(String tomlString) {
+		return tomlString.replaceAll("(?m)^[ \t]+", "");
+	}
+
+	public static String removeBlankLines(String tomlString) {
+		return tomlString.replaceAll("(?m)^[ \t]*\r?\n", "");
+	}
+
+	public static String preProcess(String tomlString) {
 		/* String result = tomlString.replaceAll("\n\\s*#\\s*\\w*", "");
 		result.replaceAll("\\n\\s*", "\n");
 		System.out.println(result);
 		return result; */
 		
-		//BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+		StringJoiner result = new StringJoiner("\n");
+		try {
+			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
+
+			String line = "";
+
+			Boolean inString = false, appended = false;
+
+			while((line = reader.readLine()) != null) {
+				for(int i = 0; i < line.length() - 1; i++) {
+					if(line.charAt(i) == '"') {
+						inString = !inString;
+					}
+
+					if(!inString && line.charAt(i) == '#') {
+						result.add(line.substring(0, i));
+						appended = true;
+					}
+				}
+
+				if(!appended) {
+					result.add(line);
+				}
+
+				appended = false;
+			}
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
+
+		return result.toString();
 		
-		//String line = "";
-		StringBuilder result = new StringBuilder();
-
-		System.out.println("Initial:" + tomlString);
-		//System.out.println("Replacing with:" + tomlString.replaceAll("(?m)^[ \t]*\r?\n", "").replaceAll("^#(\\s*\\w*)*", ""));
-		System.out.println("Removing Comments: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", ""));
-		System.out.println("Removing Blank Lines: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
-																.replaceAll("(?m)^[ \t]*\r?\n", ""));
-		System.out.println("Removing Leading Whitespace: " + tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
-																	   .replaceAll("(?m)^[ \t]*\r?\n", "")
-																	   .replaceAll("(?m)^[ \t]+", ""));
-		result.append(tomlString.replaceAll("(?m)^#(\\s*\\w*)*$", "")
-								.replaceAll("(?m)^[ \t]*\r?\n", "")
-								.replaceAll("(?m)^[ \t]+", ""));
-
 		//try {
 			//while((line = reader.readLine()) != null) {
 				
@@ -343,8 +372,27 @@ public class Toml
 		//	e.printStackTrace();
 		//}
 		//System.out.println("Returning...");
-		System.out.println("Final:" + result.toString());
-		return result.toString();
+	}
+
+	public static void main(String args[]) {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
+
+			/*
+			String line = "", result = "";
+			while((line = reader.readLine()) != null) {
+				result += line;
+			}
+			*/
+
+			String result = reader.lines().collect(Collectors.joining("\n"));
+
+			System.out.println("Initial\n_______\n" + result);
+			System.out.println("\n\n\nFinal\n_____\n" + preProcess(result));
+		
+		} catch(IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -398,7 +446,6 @@ public class Toml
 	 * @param key The key
 	 */
 	public LocalDate getDate(String key) {
-		System.out.println((LocalDate) this.table.get(key));
 		return (LocalDate) this.table.get(key);
 	}
 
