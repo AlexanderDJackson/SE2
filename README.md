@@ -8,11 +8,7 @@ A good show of this implementation functioning correctly will consist of a varie
 ## Motivation
 This project is to create a library that supports the use of TOML v1.0.0 (https://toml.io/en/) files in Java 1.8. Allowing users to seamlessly retrieve data from the TOML file with 'get' statements. Accessing data inside TOML files is often arduous, this library is made to be a solution to this. Furthermore, users will be able to simply add new data to their TOML file with 'set' statements. This will be similar to the way users can interact with JSON files. 
 
- 
-## Screenshots
-Include logo/demo screenshot etc.
-
-## Tech/Framework used
+ ## Tech/Framework used
 * Java 1.8
 * Apache Maven 3.8.4
 
@@ -36,8 +32,9 @@ Output TOML data in various formats and data types defined in the TOML specifica
 * Output the TOML object as a file/stream/string
 
 ## Code Example
+**See code and toml file in Example directory for references of how to import and use the Toml library.**
 ```
-import SE2Toml.java
+import SE2Toml.java;
 
 example code in here
 ```
