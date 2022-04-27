@@ -32,7 +32,7 @@ Output TOML data in various formats and data types defined in the TOML specifica
 * Output the TOML object as a file/stream/string
 
 ## Code Example
-**Reference the java code (Example.java) and TOML file (example.toml) in Example directory for assistance with importing and using the Toml library.**
+**Reference the java code (Example.java) and TOML file (example.toml) in the example directory for assistance when importing and using the Toml library.**
 ```
 import SE2Toml.java;
 
