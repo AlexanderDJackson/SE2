@@ -1,8 +1,9 @@
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-//import java.time.LocalDate;
-//import java.time.LocalTime;
-//import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,7 +60,7 @@ public class TomlTest
     public void testCommentAfter() {
         Toml toml = new Toml();
         toml.parseToml("id = 123 # This is a comment");
-        assertTrue((Integer) toml.getInt("id") == 123);
+        assertTrue(toml.getInt("id") == 123);
     }
 
     @Test
@@ -346,7 +347,7 @@ public class TomlTest
     public void testHex3() {
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead_deed");
-        assertTrue(toml.getLong("num").equals(Long.decode("0xbeaddeed")));
+        assertTrue(toml.getNumber("num").equals(new BigDecimal("0xbeaddeed")));
     }
 
     @Test

@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.io.FileReader;
+import java.io.File;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.StringJoiner;
@@ -333,10 +334,6 @@ public class Toml
                 
 				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i++) {
-					/* System.out.println(line + ": " + i + ": " + inLitStr);
-					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^"); */
-
 					// A single quote is found 3 charaters from the end of the line
                     if(line.charAt(i) == '\'' && i + 2 < line.length()) {
 						// The next 2 characters are also single quotes (''')
@@ -395,10 +392,6 @@ public class Toml
 				
 				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i ++) {
-					/* System.out.println(line + ": " + i + ": " + inString);
-					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^"); */
-
 					// A quote is found 3 charaters from the end of the line
 					if(line.charAt(i) == '"' && i + 2 < line.length()) {
 						// The next 2 characters are also single quotes (""")
@@ -467,7 +460,7 @@ public class Toml
 			// Use collapse functions on tomlString
 			tomlString = collapseStrings(tomlString);
 			tomlString = collapseLitStrings(tomlString);
-			System.out.println(tomlString);
+
 			// Create BufferedReader that reads in tomlString with blank lines, comments, and leading whitespace removed
 			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
 			String line = "";
@@ -521,6 +514,23 @@ public class Toml
 
 		// Return result StringJoiner cast to a string
 		return result.toString();
+	}
+
+	public HashMap<String, Object> parseToml(File file) {
+		StringJoiner result = new StringJoiner("\n");
+
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line = "";
+
+			while((line = br.readLine()) != null) {
+				result.add(line);
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+
+		return parseToml(result.toString());
 	}
 
 	/**
