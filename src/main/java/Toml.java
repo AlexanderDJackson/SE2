@@ -1,14 +1,17 @@
-import java.util.HashMap;
-import java.util.regex.Pattern;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.util.StringJoiner;
 import java.io.FileReader;
+import java.io.File;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
+import java.math.BigDecimal;
 
 /**
  * 	TOML (Tom's Obvious, Minimal Language) Java Implementation
@@ -53,214 +56,246 @@ public class Toml
 		name = "";
 	}
 
-	/**
-	 * Parse an individual line of the TOML string
-	 *
-	 * @param line The line of string to parse
-	 */
-	public Object[] parseLine(String line) {
-		int i = 0;
-		Object[] result;
+	public Toml(String name, HashMap<String, Object> map) {
+		table = map;
+		this.name = name;
+	}
 
-		// Return null for null line
-		if(line == null) {
-			return null;
-		}
+	public Object get(String key) {
+		return table.get(key);
+	}
 
-		// Remove leading whitespace
-		while(line.charAt(i) == ' ' || line.charAt(i) == '\t') {
-			i++;
-		}
+	public String getString(String key) {
+		return (String) table.get(key);
+	}
 
-		// Skip blank lines
-		if(line.charAt(i) == '\n') {
-			return null;
-		}
-
-		// Skip comments
-		if(line.charAt(i) == '#') {
-			return null;
-		// Line is a table header
-		} else if(line.charAt(i) == '[') {
-			result = new Object[1];
-			result[0] = new String("");
-
-			// Read to end of table header
-			while(line.charAt(++i) != ']') {
-				result[0] = result[0].toString() + line.charAt(i);
-			}
-
-			return result;
-		// Line is a key-value pair
+	public Object getNumber(String key) {
+		Object obj = table.get(key);
+		if(obj.equals(Double.NaN)) {
+			return Double.NaN;
+		} else if(obj.equals(Double.POSITIVE_INFINITY)) {
+			return Double.POSITIVE_INFINITY;
+		} else if(obj.equals(Double.NEGATIVE_INFINITY)) {
+			return Double.NEGATIVE_INFINITY;
 		} else {
-			result = new Object[2];
-			result[0] = "";
+			return (BigDecimal) table.get(key);
+		}
+	}
 
-			// Read to end of key
-			while(line.charAt(i) != '=' && line.charAt(i) != ' ') {
-				result[0] = result[0].toString() + line.charAt(i++);
+	public int getInt(String key) {
+		return ((BigDecimal) table.get(key)).intValue();
+	}
+
+	public float getFloat(String key) {
+		return ((BigDecimal) table.get(key)).floatValue();
+	}
+
+	public long getLong(String key) {
+		return ((BigDecimal) table.get(key)).longValue();
+	}
+
+	public double getDouble(String key) {
+		return ((BigDecimal) table.get(key)).doubleValue();
+	}
+
+	public LocalDateTime getDateTime(String key) {
+		return (LocalDateTime) table.get(key);
+	}
+
+	public LocalDate getDate(String key) {
+		return (LocalDate) table.get(key);
+	}
+
+	public LocalTime getTime(String key) {
+		return (LocalTime) table.get(key);
+	}
+
+	public OffsetDateTime getOffsetDateTime(String key) {
+		return (OffsetDateTime) table.get(key);
+	}
+
+	public Boolean getBoolean(String key) {
+		return (Boolean) table.get(key);
+	}
+
+	public Object[] getArray(String key) {
+		return (Object[]) table.get(key);
+	}
+
+	public Toml getMap(String key) {
+		return new Toml(key, (HashMap<String, Object>) table.get(key));
+	}
+
+	public boolean isEmpty() {
+		return table.isEmpty();
+	}
+
+	public void add(String key, Object value) {
+		this.table.put(key, value);
+	}
+
+	public String[] tokenize(String line) {
+		String[] tokens = new String[] {"", ""};
+		int i = 0;
+
+		if(line == null || line.length() <= 1) {
+			return new String[] { tokens[0] };
+		}
+
+		// Find first non-whitespace character
+		while(Character.isWhitespace(line.charAt(i))) { i++; }
+
+		if(line.charAt(i) == '#') {
+			return new String[] { tokens[0] };
+		}
+
+		if(line.charAt(i) == '[') {
+			while(line.charAt(++i) != ']') {
+				tokens[0] += line.charAt(i);
 			}
-	
-			// Skip whitespace and = sign
-			while(line.charAt(i) == '=' || line.charAt(i) == ' ') {
-				i++;
+
+			return new String[] { tokens[0] };
+		} else {
+			// Read the key
+			while(!(line.charAt(i) == '=') && !(line.charAt(i) == ' ')) {
+				tokens[0] += line.charAt(i++);
 			}
 
-			// Value is a string
-			if(line.charAt(i) == '"') {
-				result[1] = "";
-				i++;
-				while(line.charAt(i) != '"') {
-					result[1] = result[1].toString() + line.charAt(i++);
-				}
-			// Value is not a string
-			} else {
-				String temp = "";
-				boolean inString = line.charAt(i) == '"';
-				boolean inArray = line.charAt(i) == '[';
+			// Read past the equals sign and whitespace
+			while(line.charAt(i) == '=' || line.charAt(i) == ' ') { i++; }
 
-				// Read to newline
-				while(line.charAt(i) != '\n' &&
-					// Or beginning of comment unless in a string or array
-					((line.charAt(i) != '#' && line.charAt(i) != ' ') || inString || inArray) &&
-					// Or beginning of array unless in a array
-					 (line.charAt(i) != '[' || inArray)) {
-
-					// Keep track of whether we're in a string
-					if(line.charAt(i) == '"') {
-						inString = true;
-					}
-					
-					// Keep track of whether we're in a string
-					if(line.charAt(i) == '[') {
-						inArray = true;
-					}
-					
-					// Add character to value
-					temp += line.charAt(i++);
-				}
-
-				if(temp.charAt(0) == '"' || temp.charAt(0) == '[') {
-					result[1] = temp;
-				} else if(temp.equals("true") || temp.equals("false")) {
-					result[1] = Boolean.parseBoolean(temp);
-				} else if(temp.contains(":") && !temp.contains("E-") && !temp.contains("e-")) {
-					if(temp.contains(":") && temp.contains("-")) {
-						result[1] = LocalDateTime.parse(temp);
-					} else if(temp.contains(":")) {
-						result[1] = LocalTime.parse(temp);
-					} else {
-						result[1] = LocalDate.parse(temp);
-					}
-				} else {
-					if(temp.contains("nan") || temp.contains("inf")) {
-						switch(temp) {
-							case "inf":
-								result[1] = Double.POSITIVE_INFINITY;
-								break;
-							case "+inf":
-								result[1] = Double.POSITIVE_INFINITY;
-								break;
-							case "-inf":
-								result[1] = Double.NEGATIVE_INFINITY;
-								break;
-							default:
-								result[1] = Double.NaN;
-								break;
-						}
-					} else {
-
-						if(temp.contains("x") || temp.contains("o") || temp.contains("b")) {
-							String prefix = temp.substring(0, 2);
-							temp = temp.substring(2, temp.length());
-
-							switch (prefix) {
-								case "0x":
-									try {
-										result[1] = Integer.valueOf(temp.replace("_", ""), 16);
-									} catch(NumberFormatException ex) {
-										result[1] = Long.decode((prefix + temp).replace("_", ""));
-									}
-									break;
-								case "0o":
-									result[1] = Integer.valueOf(temp.replace("_", ""), 8);
-									break;
-								case "0b":
-									result[1] = Integer.valueOf(temp.replace("_", ""), 2);
-									break;
-								}
-							} else {
-								if(temp.substring(1, temp.length()).contains("-") || temp.contains(".")) {
-									result[1] = Double.valueOf(temp.replace("_", ""));
-								} else if(temp.contains("e") || temp.contains("E")) {
-								result[1] = Double.valueOf(temp.replace("_", ""));
-								} else {
-									result[1] = Integer.parseInt(temp.replace("_", ""));
-								}
-							}
-						}
-					}
-				}
+			// Read the value
+			while(i != line.length()) {
+				tokens[1] += line.charAt(i++);
 			}
+		}
+
+		return tokens;
+	}
+
+	public Object[] parseArray(String array) {
+		ArrayList<Object> list = new ArrayList<Object>();
+		Boolean inString = false;
+		int index = 1;
+
+		for(int i = 1; i < array.length(); i++) {
+			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
 			
-			return result;
-		}
+			if(array.charAt(i) == ' ' && !inString) {
+				index = i + 1;
+			} else if(array.charAt(i) == '[') {
+				index = i;
+				int j = 0;
 
-	/**
-	 * Parse the entire TOML string into a HashMap
-	 *
-	 * @param tomlString The TOML string to parse
-	 */
-	public void parseToml(String tomlString) {
-		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
-
-		String line;
-		try {
-			// While there is a new line of the string to be read
-			while((line = reader.readLine()) != null) {
-				
-				// Line consists of key/value pair
-				if(line.contains("=") &&
-					// Line consists of array
-					line.contains("[") && 
-					// Line is not string
-					(line.indexOf("\"") <= 0 || line.indexOf("\"") > line.indexOf("["))) {
-					
-					int brack = 1;
-					
-					// Line doesn't end with closing bracket and unmatched opening brackets remain
-					while(!line.endsWith("]") && brack != 0) {
-						String temp = reader.readLine();
-						// Loop through temp String
-						for(int i = 0; i < temp.length() - 1; i++)
-						{
-							// Increment i if opening bracket
-							if(temp.charAt(i) == '[') {
-								brack++;
-							}
-							// Decrement i if closing bracket
-							if(temp.charAt(i) == ']') {
-								brack--;	
-							}
-						}
-						// Append temp to line
-						line += temp;
+				while(true) {
+					if(array.charAt(i) == '"' && array.charAt(i - 1) != '\\') {
+						inString = !inString;
+					} else if(array.charAt(i) == '[' && !inString) {
+						j++;
+					} else if(array.charAt(i) == ']' && !inString) {
+						j--;
 					}
-					//System.out.println(line);
-				}
 
-				Object[] result = parseLine(line + '\n');
-				if(result != null) {
-					if(result.length == 1) {
-						this.table.put(result[0].toString(), new HashMap<String, Object>());
-					} else {
-						this.table.put(result[0].toString(), result[1]);
+					i++;
+
+					if(j == 0) {
+						list.add(parseValue(array.substring(index, i)));
+						break;
 					}
 				}
+			} else if((array.charAt(i) == ',' || array.charAt(i) == ']') && !inString) {
+				list.add(parseValue(array.substring(index, i)));
+				index = i + 1;
 			}
-		} catch(IOException e) {
-			e.printStackTrace();
+
+			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
 		}
+
+		return list.toArray()
+		;
+	}
+
+	public void add(HashMap<String, Object> map) {
+		if(map != null) { table.putAll(map); }
+	}
+
+	public String parseString(String string) {
+		StringBuilder sb = new StringBuilder();
+
+		for(int i = 0; i < string.length(); i++) {
+			if(string.charAt(i) == '\\') {
+				switch(string.charAt(++i)) {
+					case 'n':
+						sb.append('\n');
+						break;
+					case 't':
+						sb.append('\t');
+						break;
+					case 'r':
+						sb.append('\r');
+						break;
+					case 'f':
+						sb.append('\f');
+						break;
+					case '\'':
+						sb.append('\'');
+						break;
+					case '\"':
+						sb.append('\"');
+						break;
+					case '\\':
+						sb.append('\\');
+						break;
+					case 'u':
+						sb.append((char) Integer.parseInt(string.substring(i + 1, i + 5), 16));
+						i += 4;
+						break;
+					default:
+						System.err.println("Invalid escape sequence: " + "\\" + string.charAt(i + 1) + " at location " + i);
+				}
+			} else {
+				sb.append(string.charAt(i));
+			}
+		}
+
+		return sb.toString();
+	}
+			
+	public Object parseValue(String value) {
+		System.out.println("Parsing: " + value);
+		if(value.charAt(0) == '"' || value.charAt(0) == '\'') {
+			return parseString(value.substring(1, value.length() - 1));
+		} else if(value.charAt(0) == '\'') {
+			return value.substring(1, value.length() - 1);
+		} else if(value.contains(":") || value.contains("-") && value.charAt(0) != '-') {
+			if(value.contains("-") && !value.contains(":")) {
+				return LocalDate.parse(value);
+			} else if(value.contains(":") && !value.contains("-")) {
+				return LocalTime.parse(value);
+			} else if(value.substring(value.indexOf(":")).contains("-")) {
+				return OffsetDateTime.parse(value);
+			} else {
+				return LocalDateTime.parse(value);
+			}
+		} else if(value.charAt(0) == 't' || value.charAt(0) == 'f') {
+			return Boolean.parseBoolean(value);
+		} else if(value.charAt(0) == '[' || value.charAt(0) == '{') {
+			return parseArray(value);
+		} else {
+			if(value.toLowerCase().contains("nan")) {
+				return Double.NaN;
+			} else if(value.toLowerCase().contains("inf")) {
+				return value.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
+			} else {
+				return new BigDecimal(value.replaceAll("_| ", ""));
+			}
+		}
+	}
+
+	public HashMap<String, Object> parseToml(String tomlString) {
+		HashMap<String, Object> guh = parseToml(tomlString, this.name);
+		//return parseToml(tomlString, this.name);
+		return guh;
 	}
 
 	/**
@@ -307,10 +342,6 @@ public class Toml
                 
 				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i++) {
-					/* System.out.println(line + ": " + i + ": " + inLitStr);
-					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^"); */
-
 					// A single quote is found 3 charaters from the end of the line
                     if(line.charAt(i) == '\'' && i + 2 < line.length()) {
 						// The next 2 characters are also single quotes (''')
@@ -369,10 +400,6 @@ public class Toml
 				
 				// Loop through each character of the line
 				for(int i = 0; i < line.length(); i ++) {
-					/* System.out.println(line + ": " + i + ": " + inString);
-					for(int j = 0; j < i; j ++) { System.out.print(" "); }
-					System.out.println("^"); */
-
 					// A quote is found 3 charaters from the end of the line
 					if(line.charAt(i) == '"' && i + 2 < line.length()) {
 						// The next 2 characters are also single quotes (""")
@@ -441,7 +468,7 @@ public class Toml
 			// Use collapse functions on tomlString
 			tomlString = collapseStrings(tomlString);
 			tomlString = collapseLitStrings(tomlString);
-			System.out.println(tomlString);
+
 			// Create BufferedReader that reads in tomlString with blank lines, comments, and leading whitespace removed
 			BufferedReader reader = new BufferedReader(new StringReader(removeBlankLines(removeComments(removeLeadingWhitespace(tomlString)))));
 			String line = "";
@@ -497,96 +524,80 @@ public class Toml
 		return result.toString();
 	}
 
-	public static void main(String args[]) {
+	public HashMap<String, Object> parseToml(File file) {
+		StringJoiner result = new StringJoiner("\n");
+
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/example.toml"));
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line = "";
 
-			/*
-			String line = "", result = "";
-			while((line = reader.readLine()) != null) {
-				result += line;
+			while((line = br.readLine()) != null) {
+				result.add(line);
 			}
-			*/
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
 
-			String result = reader.lines().collect(Collectors.joining("\n"));
+		return parseToml(result.toString());
+	}
 
-			System.out.println("Initial\n_______\n" + result);
-			System.out.println("\n\n\nFinal\n_____\n" + preProcess(result));
-		
+	/**
+	 * Parse the TOML string into a HashMap
+	 *
+	 * @param tomlString The TOML string to parse
+	 */
+	public HashMap<String, Object> parseToml(String tomlString, String tableName) {
+		HashMap<String, Object> table = new HashMap<String, Object>();
+
+		tomlString = preProcess(tomlString);
+		System.out.println("tomlString: " + tomlString);
+		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
+		String line;
+
+		try {
+			while((line = reader.readLine()) != null) {
+				String[] result = tokenize(line);
+				if(result[0] != "") {
+					if(result.length == 1) {
+						HashMap<String, Object> subTable = new HashMap<String, Object>();
+
+						StringJoiner recurse = new StringJoiner("\n");
+						
+						while(true) {
+							reader.mark(1024);
+							if((line = reader.readLine()) == null) {
+								break;
+							}
+
+							String[] subResult = tokenize(line);
+							if(subResult != null && subResult.length < 2) {
+								reader.reset();
+								break;
+							} else {
+								recurse.add(line);
+							}
+						}
+
+						subTable = parseToml(recurse.toString(), result[0]);
+
+						if(((HashMap<String, Object>) table.get(result[0])) == null) {
+							subTable.put(result[0], subTable);
+						} else {
+							((HashMap<String, Object>) table.get(result[0])).put(result[0], subTable);
+						}
+
+					} else {
+						table.put(result[0], parseValue(result[1]));
+					}
+				} else {
+					return null;
+				}
+			}
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	/**
-	 * Return the int associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public int getInt(String key) {
-		return (Integer) this.table.get(key);
-	}
-
-	/**
-	 * Return the double associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public double getDouble(String key) {
-		return (Double) this.table.get(key);
-	}
-
-	/**
-	 * Return the Long associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public Long getLong(String key) {
-		return (Long) this.table.get(key);
-	}
-
-	/**
-	 * Return the boolean associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public Boolean getBoolean(String key) {
-		return (Boolean) this.table.get(key);
-	}
-
-	/**
-	 * Return the String associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public String getString(String key) {
-		return (String) this.table.get(key);
-	}
-
-	/**
-	 * Return the Date associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public LocalDate getDate(String key) {
-		return (LocalDate) this.table.get(key);
-	}
-
-	/**
-	 * Return the Time associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public LocalTime getTime(String key) {
-		return (LocalTime) this.table.get(key);
-	}
-
-	/**
-	 * Return the DateTime associated with the given key
-	 * 
-	 * @param key The key
-	 */
-	public LocalDateTime getDateTime(String key) {
-		return (LocalDateTime) this.table.get(key);
+	
+		this.table.putAll(table);
+		return table;
 	}
 }
