@@ -253,7 +253,7 @@ public class Toml
 					default:
 						System.err.println("Invalid escape sequence: " + "\\" + string.charAt(i + 1) + " at location " + i);
 				}
-			} else {
+			} else if(string.charAt(i) != '"') {
 				sb.append(string.charAt(i));
 			}
 		}
@@ -262,7 +262,6 @@ public class Toml
 	}
 			
 	public Object parseValue(String value) {
-		System.out.println("Parsing: " + value);
 		if(value.charAt(0) == '"' || value.charAt(0) == '\'') {
 			return parseString(value.substring(1, value.length() - 1));
 		} else if(value.charAt(0) == '\'') {
@@ -287,7 +286,27 @@ public class Toml
 			} else if(value.toLowerCase().contains("inf")) {
 				return value.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
 			} else {
-				return new BigDecimal(value.replaceAll("_| ", ""));
+				BigDecimal bd;
+
+				if(!value.contains("b") && !value.contains("o") && !value.contains("x")) {
+					bd = new BigDecimal(value.replaceAll("_| ", ""));
+				} else {
+					switch(value.charAt(1)) {
+						case 'x':
+							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "").substring(2), 16));
+							break;
+						case 'o':
+							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "").substring(2), 8));
+							break;
+						case 'b':
+							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "").substring(2), 2));
+							break;
+						default:
+							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "")));
+					}
+				}
+
+				return bd;
 			}
 		}
 	}
@@ -550,7 +569,6 @@ public class Toml
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		tomlString = preProcess(tomlString);
-		System.out.println("tomlString: " + tomlString);
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		String line;
 
