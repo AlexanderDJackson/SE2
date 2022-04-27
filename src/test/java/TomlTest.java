@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import org.junit.Before;
 import org.junit.Test;
 
+import Toml.Toml;
+
 /**
  *  Unit testing for TOML (Tom's Obvious, Minimal Language) Java Implementation
  * 

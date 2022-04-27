@@ -32,15 +32,15 @@ Output TOML data in various formats and data types defined in the TOML specifica
 * Output the TOML object as a file/stream/string
 
 ## Code Example
-**Reference the java code (Example.java) and TOML file (example.toml) in the example directory for assistance when importing and using the Toml library.**
+**Reference the java code (Example.java) and TOML file (example.toml) in the main directory for assistance when importing and using the Toml library.**
 ```
-import SE2Toml.java;
+import Toml.Toml;
 
 example code in here
 ```
 
 ## Installation
-Import SE2Toml.java library at the top of your Java file that you wish to use the library functionalities in.
+Import Toml.Toml library at the top of your Java file (located in the same directory as Toml.java) that you wish to use the library functionalities in.
 
 ## Tests
 Tests are stored in the src > test > java > TomlTest.java file of the Maven project folder. All tests adhere to the specifications of JUnit and are run through Apache Maven's mvn test command.
@@ -56,4 +56,4 @@ If you want to contribute to the TOML library or think of any features to add, p
 ## License
 Apache Maven 3.8.4
 
-**HAPPY CODING AND TOMLing!!**
+## HAPPY CODING AND TOMLing!!
