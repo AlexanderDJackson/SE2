@@ -1,10 +1,8 @@
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
 import java.math.BigDecimal;
-import java.util.HashMap;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -31,15 +29,6 @@ public class TomlTest
     @Before
     public void initialize() {
         toml = new Toml();
-    }
-
-    /**
-     * Rigorous Test :-)
-     */
-    @Test
-    public void shouldAnswerWithTrue()
-    {
-        assertTrue( true );
     }
 
     @Test
@@ -102,14 +91,14 @@ public class TomlTest
     public void testCommentInStringArray() {
         Toml toml = new Toml();
         toml.parseToml("a = [ \"#b\", \"#c\" ]");
-        assertTrue(toml.getString("a").equals("[ \"#b\", \"#c\" ]"));
+        assertTrue(toml.getArray("a")[0].equals("#b"));
     }
 
     @Test
     public void testCommentInStringArray2() {
         Toml toml = new Toml();
         toml.parseToml("jobs = [ \"scrum master #1\", \"scrum master #2\" ]");
-        assertTrue(toml.getString("jobs").equals("[ \"scrum master #1\", \"scrum master #2\" ]"));
+        assertTrue(toml.getArray("jobs")[0].equals("scrum master #1"));
     }
     
     @Test
@@ -179,21 +168,21 @@ public class TomlTest
     public void testInfinity() {
         Toml toml = new Toml();
         toml.parseToml("num = inf");
-        assertTrue(toml.getDouble("num") == Double.POSITIVE_INFINITY);
+        assertTrue(toml.getNumber("num").equals(Double.POSITIVE_INFINITY));
     }
 
     @Test
     public void testInfinityWithPlus() {
         Toml toml = new Toml();
         toml.parseToml("num = +inf");
-        assertTrue(toml.getDouble("num") == Double.POSITIVE_INFINITY);
+        assertTrue(toml.getNumber("num").equals(Double.POSITIVE_INFINITY));
     }
 
     @Test
     public void testInfinityNegative() {
         Toml toml = new Toml();
         toml.parseToml("num = -inf");
-        assertTrue(toml.getDouble("num") == Double.NEGATIVE_INFINITY);
+        assertTrue(toml.getNumber("num").equals(Double.NEGATIVE_INFINITY));
     }
 
     @Test
@@ -208,6 +197,13 @@ public class TomlTest
         Toml toml = new Toml();
         toml.parseToml("num = 0xbead");
         assertTrue(toml.getInt("num") == 0xbead);
+    }
+
+    @Test
+    public void testHex3() {
+        Toml toml = new Toml();
+        toml.parseToml("num = 0xbead_deed");
+        assertTrue(toml.getNumber("num").equals(new BigDecimal(Long.decode("0xbeaddeed"))));
     }
 
     @Test
@@ -326,158 +322,189 @@ public class TomlTest
     public void testNan() {
         Toml toml = new Toml();
         toml.parseToml("num = nan");
-        assertTrue(Double.isNaN(toml.getDouble("num")));
+        assertTrue(toml.getNumber("num").equals(Double.NaN));
     }
 
     @Test
     public void testNanWithPlus() {
         Toml toml = new Toml();
         toml.parseToml("num = +nan");
-        assertTrue(Double.isNaN(toml.getDouble("num")));
+        assertTrue(toml.getNumber("num").equals(Double.NaN));
     }
 
     @Test
     public void testNanWithMinus() {
         Toml toml = new Toml();
         toml.parseToml("num = -nan");
-        assertTrue(Double.isNaN(toml.getDouble("num")));
-    }
-
-    @Test
-    public void testHex3() {
-        Toml toml = new Toml();
-        toml.parseToml("num = 0xbead_deed");
-        assertTrue(toml.getNumber("num").equals(new BigDecimal("0xbeaddeed")));
+        assertTrue(toml.getNumber("num").equals(Double.NaN));
     }
 
     @Test
     public void testIntArray() {
         Toml toml = new Toml();
         toml.parseToml("array = [ 1, 2, 3 ]");
-        assertTrue(toml.getString("array").equals("[ 1, 2, 3 ]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).intValue() == 1);
     }
 
     @Test
     public void testIntArray2() {
         Toml toml = new Toml();
+        toml.parseToml("array = [ 1, 2, 3 ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).intValue() == 2);
+    }
+
+    @Test
+    public void testIntArray3() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ 1, 2, 3 ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).intValue() == 3);
+    }
+
+    @Test
+    public void testIntArray4() {
+        Toml toml = new Toml();
         toml.parseToml("array = [11,22,33]");
-        assertTrue(toml.getString("array").equals("[11,22,33]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).intValue() == 11);
+    }
+
+    @Test
+    public void testIntArray5() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [11,22,33]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).intValue() == 22);
+    }
+
+    @Test
+    public void testIntArray6() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [11,22,33]");
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).intValue() == 33);
     }
 
     @Test
     public void testFloatArray() {
         Toml toml = new Toml();
         toml.parseToml("array = [ 1.1, 2.2, 3.3 ]");
-        assertTrue(toml.getString("array").equals("[ 1.1, 2.2, 3.3 ]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).floatValue() == (float) 1.1);
     }
 
     @Test
     public void testFloatArray2() {
         Toml toml = new Toml();
+        toml.parseToml("array = [ 1.1, 2.2, 3.3 ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).floatValue() == (float) 2.2);
+    }
+
+    @Test
+    public void testFloatArray3() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ 1.1, 2.2, 3.3 ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).floatValue() == (float) 3.3);
+    }
+
+    @Test
+    public void testFloatArray4() {
+        Toml toml = new Toml();
         toml.parseToml("array = [1.12,2.23,3.34]");
-        assertTrue(toml.getString("array").equals("[1.12,2.23,3.34]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).floatValue() == (float) 1.12);
+    }
+
+    @Test
+    public void testFloatArray5() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [1.12,2.23,3.34]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).floatValue() == (float) 2.23);
+    }
+
+    @Test
+    public void testFloatArray6() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [1.12,2.23,3.34]");
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).floatValue() == (float) 3.34);
     }
 
     @Test
     public void testStringArray() {
         Toml toml = new Toml();
         toml.parseToml("array = [ \"Hi\", \"Hello\", \"Bye\" ]");
-        assertTrue(toml.getString("array").equals("[ \"Hi\", \"Hello\", \"Bye\" ]"));
+        assertTrue(toml.getArray("array")[0].equals("Hi"));
     }
 
     @Test
     public void testStringArray2() {
         Toml toml = new Toml();
-        toml.parseToml("array = [\"Purple\",\"Blee\",\"Blah\"]");
-        assertTrue(toml.getString("array").equals("[\"Purple\",\"Blee\",\"Blah\"]"));
+        toml.parseToml("array = [ \"Hi\", \"Hello\", \"Bye\" ]");
+        assertTrue(toml.getArray("array")[1].equals("Hello"));
+    }
+
+    @Test
+    public void testStringArray3() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [ \"Hi\", \"Hello\", \"Bye\" ]");
+        assertTrue(toml.getArray("array")[2].equals("Bye"));
     }
 
     @Test
     public void testNestedStringArray() {
         Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"] ]");
-        assertTrue(toml.getString("array").equals("[ [\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"] ]"));
+        toml.parseToml("array = [[\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"]]");
+        assertTrue(((Object[]) toml.getArray("array")[0])[0].equals("Hi"));
     }
 
     @Test
     public void testNestedStringArray2() {
         Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Purple\", \"White\"], [\"Fight\", \"FIGHT\"] ]");
-        assertTrue(toml.getString("array").equals("[ [\"Purple\", \"White\"], [\"Fight\", \"FIGHT\"] ]"));
+        toml.parseToml("array = [[\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"]]");
+        assertTrue(((Object[]) toml.getArray("array")[0])[1].equals("Hello"));
+    }
+
+    @Test
+    public void testNestedStringArray3() {
+        Toml toml = new Toml();
+        toml.parseToml("array = [[\"Hi\", \"Hello\"], [\"Bye\", \"Good-Bye\"]]");
+        assertTrue(((Object[]) toml.getArray("array")[1])[1].equals("Good-Bye"));
     }
 
     @Test
     public void testMultiLineArray() {
         Toml toml = new Toml();
         toml.parseToml("array = [ 1,\n2,\n3\n]");
-        assertTrue(toml.getString("array").equals("[ 1,2,3]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).intValue() == 1);
     }
 
     @Test
     public void testMultiLineArray2() {
         Toml toml = new Toml();
-        toml.parseToml("array = [ 9,\n 8,\n 7\n ]");
-        assertTrue(toml.getString("array").equals("[ 9, 8, 7 ]"));
-    }
-
-    @Test
-    public void testMultiLineNestedArray() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ 1,\n[2, 3],\n4]");
-        assertTrue(toml.getString("array").equals("[ 1,[2, 3],4]"));
-    }
-
-    @Test
-    public void testMultiLineNestedArray2() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ 9,\n [8, 7],\n 6 ]");
-        assertTrue(toml.getString("array").equals("[ 9, [8, 7], 6 ]"));
+        toml.parseToml("array = [ 1,\n2,\n3\n]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).intValue() == 2);
     }
 
     @Test
     public void testMultiLineArray3() {
         Toml toml = new Toml();
         toml.parseToml("array = [ 1,\n2,\n3\n]");
-        assertTrue(toml.getString("array").equals("[ 1,2,3]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).intValue() == 3);
     }
 
     @Test
     public void testMultiLineArray4() {
         Toml toml = new Toml();
         toml.parseToml("array = [ 9,\n 8,\n 7\n ]");
-        assertTrue(toml.getString("array").equals("[ 9, 8, 7 ]"));
+        assertTrue(((BigDecimal) toml.getArray("array")[0]).intValue() == 9);
     }
 
     @Test
-    public void testMultiLineNestedArray3() {
+    public void testMultiLineArray5() {
         Toml toml = new Toml();
-        toml.parseToml("array = [ 1,\n[2, 3],\n4]");
-        assertTrue(toml.getString("array").equals("[ 1,[2, 3],4]"));
+        toml.parseToml("array = [ 9,\n 8,\n 7\n ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[1]).intValue() == 8);
     }
 
     @Test
-    public void testMultiLineNestedArray4() {
+    public void testMultiLineArray6() {
         Toml toml = new Toml();
-        toml.parseToml("array = [ 9,\n [8, 7],\n 6 ]");
-        assertTrue(toml.getString("array").equals("[ 9, [8, 7], 6 ]"));
-    }
-
-    @Test
-    public void testPreProcess() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("int = 1\n# guh\nstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
-    }
-
-    @Test
-    public void testPreProcess2() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("int = 1\nstring = \"# guh hi\"").equals("int = 1\nstring = \"# guh hi\""));
-    }
-
-    @Test
-    public void testPreProcess3() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("int = 1\n\n\tstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
+        toml.parseToml("array = [ 9,\n 8,\n 7\n ]");
+        assertTrue(((BigDecimal) toml.getArray("array")[2]).intValue() == 7);
     }
 
     @Test
@@ -503,182 +530,58 @@ public class TomlTest
         Toml toml = new Toml();
         assertTrue(toml.collapseLitStrings("re = '''\\t{2} apps is t[wo]o many'''").equals("re = '\\t{2} apps is t[wo]o many'"));
     }
-    
-    /* @Test
+
+    @Test
     public void testPreProcess() {
         Toml toml = new Toml();
-        assertTrue(toml.preProcess("array = [ 9,\n [8, 7],\n 6 ]").equals("array = [ 9, [8, 7], 6 ]"));
+        assertTrue(toml.preProcess("int = 1\n# guh\nstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
     }
 
     @Test
     public void testPreProcess2() {
         Toml toml = new Toml();
-        assertTrue(toml.preProcess("string = \"\"\"Hi\n how\n are\n you\"\"\"").equals("string = \"\"\"Hi how are you\"\"\""));
+        assertTrue(toml.preProcess("int = 1\nstring = \"# guh hi\"").equals("int = 1\nstring = \"# guh hi\""));
     }
 
     @Test
     public void testPreProcess3() {
         Toml toml = new Toml();
-        assertTrue(toml.preProcess("stringLiteral = '''Hi\n how\n are\n you'''").equals("stringLiteral = '''Hi how are you'''"));
-    }
-
-    @Test
-    public void testPreProcess4() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("array = [ \"\"\"9,\n [8, 7],\n 6\"\"\" ]").equals("array = [ \"\"\"9, [8, 7], 6\"\"\" ]"));
-    }
-
-    @Test
-    public void testPreProcess5() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("string = \"\"\"'''Hi\n how\n are\n you'''\"\"\"").equals("string = \"\"\"'''Hi how are you'''\"\"\""));
-    }
-
-    @Test
-    public void testPreProcess6() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("stringLiteral = '''\"\"\"Hi\n how\n are\n you\"\"\"'''").equals("stringLiteral = '''\"\"\"Hi how are you\"\"\"'''"));
-    }
-
-    @Test
-    public void testPreProcess7() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("array = [ '''9,\n [8, 7],\n 6''' ]").equals("array = [ '''9, [8, 7], 6''' ]"));
-    }
-
-    @Test
-    public void testPreProcess8() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("string = \"\"\"I'm\n a\n little\n teapot\"\"\"").equals("string = \"\"\"I'm a little teapot\"\"\""));
-    }
-
-    @Test
-    public void testPreProcess9() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("stringLiteral = '''I'm\n a\n little\n teapot'''").equals("stringLiteral = '''I'm a little teapot'''"));
-    }
-
-    @Test
-    public void testPreProcess10() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess("stringLiteral = '''Hi\n \thow\n are\n you'''").equals("stringLiteral = '''Hi \thow are you'''"));
-    } */
-
-    /* @Test
-    public void testProcess11() {
-        Toml toml = new Toml();
-        assertTrue(toml.preProcess(" stringLiteral = '''Hi\n \thow\n are\n you''' ").equals("stringLiteral = '''Hi \thow are you'''"));
-    } */
-
-    /* @Test
-    public void testArray1() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ 1, 2, 3 ]");
-        assertTrue(toml.getArray("array")[0] == 1);
-    }
-
-    @Test
-    public void testArray12() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ 1, 2, 3 ]");
-        assertTrue(toml.getArray("array")[1] == 2);
-    }
-
-    @Test
-    public void testArray13() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ 1, 2, 3 ]");
-        assertTrue(toml.getArray("array")[2] == 3);
-    }
-
-    @Test
-    public void testArray2() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ \"Hi\", \"Bye\" ]");
-        assertTrue(toml.getArray("array")[0].equals("Hi"));
-    }
-
-    @Test
-    public void testArray22() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ \"Hi\", \"Bye\" ]");
-        assertTrue(toml.getArray("array")[1].equals("Bye"));
-    }
-
-    @Test
-    public void testNestedArray1() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [1, 2], [3, 4] ]");
-        assertTrue(toml.getArray("array")[0][0] == 1);
-    }
-
-    @Test
-    public void testNestedArray12() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [1, 2], [3, 4] ]");
-        assertTrue(toml.getArray("array")[0][1] == 2);
-    }
-
-    @Test
-    public void testNestedArray13() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [1, 2], [3, 4] ]");
-        assertTrue(toml.getArray("array")[1][0] == 3);
-    }
-
-    @Test
-    public void testNestedArray14() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [1, 2], [3, 4] ]");
-        assertTrue(toml.getArray("array")[1][1] == 4);
-    }
-
-    @Test
-    public void testNestedArray2() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"GoodBye\"] ]");
-        assertTrue(toml.getArray("array")[0][0].equals("Hi"));
-    }
-
-    @Test
-    public void testNestedArray22() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"GoodBye\"] ]");
-        assertTrue(toml.getArray("array")[0][1].equals("Hello"));
-    }
-
-    @Test
-    public void testNestedArray23() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"GoodBye\"] ]");
-        assertTrue(toml.getArray("array")[1][0].equals("Bye"));
-    }
-
-    @Test
-    public void testNestedArray24() {
-        Toml toml = new Toml();
-        toml.parseToml("array = [ [\"Hi\", \"Hello\"], [\"Bye\", \"GoodBye\"] ]");
-        assertTrue(toml.getArray("array")[1][1].equals("GoodBye"));
+        assertTrue(toml.preProcess("int = 1\n\n\tstring = \"hi\"").equals("int = 1\nstring = \"hi\""));
     }
 
     @Test
     public void testDate() {
         Toml toml = new Toml();
         toml.parseToml("date = 2022-03-31");
-        assertTrue(toml.getDate("date").equals("2022-03-31"));
+        assertTrue(toml.getDate("date").equals(LocalDate.parse("2022-03-31")));
+    }
+
+    @Test
+    public void testDate2(){
+        Toml toml = new Toml();
+        toml.parseToml("date = 1979-05-27");
+        assertTrue(toml.getDate("date").compareTo(LocalDate.parse("1979-05-27")) == 0);
     }
 
     @Test
     public void testTime() {
         Toml toml = new Toml();
         toml.parseToml("time = 23:29:09.58760");
-        assertTrue(toml.getTime("time").equals("23:29:09.58760"));
+        assertTrue(toml.getTime("time").equals(LocalTime.parse("23:29:09.58760")));
     }
 
     @Test
-    public void testDate(){
+    public void testDateTime() {
         Toml toml = new Toml();
-        toml.parseToml("date = 1979-05-27");
-        assertTrue(toml.getDate("date").compareTo(LocalDate.parse("1979-05-27")) == 0);
-    } */
+        toml.parseToml("time = 1979-05-27T07:32:00");
+        assertTrue(toml.getDateTime("time").equals(LocalDateTime.parse("1979-05-27T07:32:00")));
+    }
+
+    @Test
+    public void testAdd() {
+        Toml toml = new Toml();
+        toml.parseToml("name = \"guh buh\"");
+        toml.add("age", new BigDecimal(69));
+        assertTrue(toml.getInt("age") == 69);
+    }
 }

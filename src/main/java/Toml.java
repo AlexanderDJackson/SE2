@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 import java.math.BigDecimal;
 
 /**
@@ -179,14 +178,21 @@ public class Toml
 		int index = 1;
 
 		for(int i = 1; i < array.length(); i++) {
+			// Determine if we are inside a string
 			inString = array.charAt(i) == '"' && array.charAt(i - 1) != '\\' ? !inString : inString;
 			
+			// Disregard whitespace outside of strings
 			if(array.charAt(i) == ' ' && !inString) {
-				index = i + 1;
+				if(array.charAt(i + 1) != ']') {
+					index = i + 1;
+				}
+
+			// Detect nested array
 			} else if(array.charAt(i) == '[') {
 				index = i;
 				int j = 0;
 
+				// Read until matching bracket and recurse
 				while(true) {
 					if(array.charAt(i) == '"' && array.charAt(i - 1) != '\\') {
 						inString = !inString;
@@ -196,23 +202,29 @@ public class Toml
 						j--;
 					}
 
-					i++;
-
 					if(j == 0) {
-						list.add(parseValue(array.substring(index, i)));
+						if(index != i) {
+							list.add(parseValue(array.substring(index, i + 1)));
+							index = i + 1;
+						}
 						break;
 					}
+
+					i++;
+
 				}
+			// We have reached the end of an element
 			} else if((array.charAt(i) == ',' || array.charAt(i) == ']') && !inString) {
-				list.add(parseValue(array.substring(index, i)));
-				index = i + 1;
+				if(index != i) {
+					list.add(parseValue(array.substring(index, i).replaceAll("(?m)\\s*$", "")));
+					index = i + 1;
+				}
 			}
 
-			inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
+			//inString = array.charAt(i) == '"' && i != 0 && array.charAt(i - 1) != '\\' ? !inString : inString;
 		}
 
-		return list.toArray()
-		;
+		return list.toArray();
 	}
 
 	public void add(HashMap<String, Object> map) {
@@ -266,7 +278,7 @@ public class Toml
 			return parseString(value.substring(1, value.length() - 1));
 		} else if(value.charAt(0) == '\'') {
 			return value.substring(1, value.length() - 1);
-		} else if(value.contains(":") || value.contains("-") && value.charAt(0) != '-') {
+		} else if(value.contains(":") || value.contains("-") && value.charAt(0) != '-' && !value.contains("[") && !value.toLowerCase().contains("e")) {
 			if(value.contains("-") && !value.contains(":")) {
 				return LocalDate.parse(value);
 			} else if(value.contains(":") && !value.contains("-")) {
@@ -293,7 +305,7 @@ public class Toml
 				} else {
 					switch(value.charAt(1)) {
 						case 'x':
-							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "").substring(2), 16));
+							bd = new BigDecimal(Long.decode(value.replaceAll("_| ", "")));
 							break;
 						case 'o':
 							bd = new BigDecimal(Integer.parseInt(value.replaceAll("_| ", "").substring(2), 8));
@@ -322,7 +334,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to remove comments from
 	 */
-	public static String removeComments(String tomlString) {
+	public String removeComments(String tomlString) {
 		return tomlString.replaceAll("(?m)^#.*$", "");
 	}
 
@@ -331,7 +343,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to remove leading whitespace from
 	 */
-	public static String removeLeadingWhitespace(String tomlString) {
+	public String removeLeadingWhitespace(String tomlString) {
 		return tomlString.replaceAll("(?m)^[ \t]+", "");
 	}
 
@@ -340,7 +352,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to remove blank lines from
 	 */
-	public static String removeBlankLines(String tomlString) {
+	public String removeBlankLines(String tomlString) {
 		return tomlString.replaceAll("(?m)^[ \t]*\r?\n", "");
 	}
 
@@ -349,7 +361,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to collapse multiline string literals in
 	 */
-	public static String collapseLitStrings(String tomlString) {
+	public String collapseLitStrings(String tomlString) {
         BufferedReader reader = new BufferedReader(new StringReader(tomlString));
         StringJoiner result = new StringJoiner("\n");
         String line = "";
@@ -407,7 +419,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to collapse multiline strings in
 	 */
-	public static String collapseStrings(String tomlString) {
+	public String collapseStrings(String tomlString) {
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		StringJoiner result = new StringJoiner("\n");
 		String line = "";
@@ -481,7 +493,7 @@ public class Toml
 	 *
 	 * @param tomlString The TOML string to collapse multiline string literals in
 	 */
-	public static String preProcess(String tomlString) {
+	public String preProcess(String tomlString) {
 		StringJoiner result = new StringJoiner("\n");
 		try {
 			// Use collapse functions on tomlString
@@ -553,6 +565,8 @@ public class Toml
 			while((line = br.readLine()) != null) {
 				result.add(line);
 			}
+
+			br.close();
 		} catch(Exception ex) {
 			ex.printStackTrace();
 		}
