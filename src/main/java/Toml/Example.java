@@ -34,6 +34,7 @@ public class Example {
         // Create Toml object
         Toml toml = new Toml();
         // Pass full path of filename to parseToml function
+        // Use apropriate filename
         toml.parseToml(new File("C:/Users/jrait/SE2/FightFight/SE2/src/main/resources/example.toml"));
 
         // Output using SE2Toml library's functionalities
