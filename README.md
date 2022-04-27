@@ -32,7 +32,7 @@ Output TOML data in various formats and data types defined in the TOML specifica
 * Output the TOML object as a file/stream/string
 
 ## Code Example
-**See code and toml file in Example directory for references of how to import and use the Toml library.**
+**Reference the java code (Example.java) and TOML file (example.toml) in Example directory for assistance with importing and using the Toml library.**
 ```
 import SE2Toml.java;
 
@@ -48,12 +48,12 @@ For example: when in the SE2 folder in the terminal, run **mvn test**
 Also, navigate to the TomlTest.java folder to see the things that are being test and how they are relevant to the project.
 
 ## How to use?
-Using the TOML Library the user first imports the library. Next, they can either pass it a TOML string or a TOML file. From here the user can call the toml.parse() object or they can make a blank TOML object and add more TOML to it.
+Using the TOML Library the user first imports the library. Next, they can either pass it a TOML string or a TOML file as a parameter when calling toml.parseToml(). They can extract TOML data by using get functionalities and add more TOML data to the file with set functionalities.
 
-## Contribute
+## Contributions
 If you want to contribute to the TOML library or think of any features to add, pull requests are always welcome!
-
-#### Anything else that seems useful
 
 ## License
 Apache Maven 3.8.4
+
+**HAPPY CODING AND TOMLing!!**
