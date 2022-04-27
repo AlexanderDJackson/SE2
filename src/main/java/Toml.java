@@ -56,6 +56,11 @@ public class Toml
 		name = "";
 	}
 
+	public Toml(String name, HashMap<String, Object> map) {
+		table = map;
+		this.name = name;
+	}
+
 	public Object get(String key) {
 		return table.get(key);
 	}
@@ -117,12 +122,16 @@ public class Toml
 		return (Object[]) table.get(key);
 	}
 
-	public HashMap<String, Object> getMap(String key) {
-		return (HashMap<String, Object>) table.get(key);
+	public Toml getMap(String key) {
+		return new Toml(key, (HashMap<String, Object>) table.get(key));
 	}
 
 	public boolean isEmpty() {
 		return table.isEmpty();
+	}
+
+	public void add(String key, Object value) {
+		this.table.put(key, value);
 	}
 
 	public String[] tokenize(String line) {
@@ -247,14 +256,13 @@ public class Toml
 			} else {
 				sb.append(string.charAt(i));
 			}
-
-			System.out.println(sb.toString());
 		}
 
 		return sb.toString();
 	}
 			
 	public Object parseValue(String value) {
+		System.out.println("Parsing: " + value);
 		if(value.charAt(0) == '"' || value.charAt(0) == '\'') {
 			return parseString(value.substring(1, value.length() - 1));
 		} else if(value.charAt(0) == '\'') {
@@ -279,7 +287,7 @@ public class Toml
 			} else if(value.toLowerCase().contains("inf")) {
 				return value.charAt(0) == '-' ? Double.NEGATIVE_INFINITY : Double.POSITIVE_INFINITY;
 			} else {
-				return new BigDecimal(value.replaceAll("_", ""));
+				return new BigDecimal(value.replaceAll("_| ", ""));
 			}
 		}
 	}
@@ -542,6 +550,7 @@ public class Toml
 		HashMap<String, Object> table = new HashMap<String, Object>();
 
 		tomlString = preProcess(tomlString);
+		System.out.println("tomlString: " + tomlString);
 		BufferedReader reader = new BufferedReader(new StringReader(tomlString));
 		String line;
 
