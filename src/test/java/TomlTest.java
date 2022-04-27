@@ -45,14 +45,14 @@ public class TomlTest
     public void testComment() {
         Toml toml = new Toml();
         toml.parseToml("#guh/n");
-        assertEquals(toml.table, new HashMap<String, Object>());
+        assertTrue(toml.isEmpty());
     }
 
     @Test
     public void testComment2() {
         Toml toml = new Toml();
         toml.parseToml("# This is a comment");
-        assertEquals(toml.table, new HashMap<String, Object>());
+        assertTrue(toml.isEmpty());
     }
 
     @Test
